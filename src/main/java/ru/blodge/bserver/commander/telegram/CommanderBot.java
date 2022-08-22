@@ -11,10 +11,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.blodge.bserver.commander.docker.DockerApi;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 public class CommanderBot extends TelegramLongPollingBot {
@@ -29,7 +27,7 @@ public class CommanderBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         LOGGER.info("Received new update {}", update);
 
-        if (update.getMessage().getFrom().getId() != ADMIN_USER_ID) {
+        if (update.getMessage().getFrom().getId() == ADMIN_USER_ID) {
             handleAccessDeniedError(update);
             return;
         }
@@ -45,7 +43,12 @@ public class CommanderBot extends TelegramLongPollingBot {
             SendVideo accessDeniedVideo = new SendVideo();
             InputFile inputFile = new InputFile();
             if (ACCESS_DENIED_FILE_ID == null) {
-                inputFile.setMedia(loadAccessDeniedFile());
+                ClassLoader classLoader = getClass().getClassLoader();
+                try (InputStream inputStream = classLoader.getResourceAsStream(ACCESS_DENIED_FILE)) {
+                    inputFile.setMedia(inputStream, ACCESS_DENIED_FILE);
+                } catch (IOException e) {
+                    LOGGER.error("Error while loading {}", ACCESS_DENIED_FILE);
+                }
             } else {
                 inputFile.setMedia(ACCESS_DENIED_FILE_ID);
             }
@@ -54,19 +57,9 @@ public class CommanderBot extends TelegramLongPollingBot {
 
             Message sentMessage = execute(accessDeniedVideo);
             ACCESS_DENIED_FILE_ID = sentMessage.getVideo().getFileId();
-        } catch (FileNotFoundException | URISyntaxException e) {
-            LOGGER.error("Error while retrieving {} file", ACCESS_DENIED_FILE);
         } catch (TelegramApiException e) {
             LOGGER.error("Error while sending response to {}", update.getMessage());
         }
-    }
-
-    private File loadAccessDeniedFile() throws FileNotFoundException, URISyntaxException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        URL resource = classLoader.getResource(ACCESS_DENIED_FILE);
-        if (resource == null) throw new FileNotFoundException();
-
-        return new File(resource.toURI());
     }
 
     @Override
