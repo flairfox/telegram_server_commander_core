@@ -45,6 +45,8 @@ public class CommanderBot extends TelegramLongPollingBot {
         // Файл с видео-ответом
         InputFile inputFile = new InputFile();
         if (ACCESS_DENIED_FILE_ID == null) {
+            // todo Кэширование в temp
+            // Загружаем файл с видеоответом, если ID не закэширован
             ClassLoader classLoader = getClass().getClassLoader();
             try (InputStream inputStream = classLoader.getResourceAsStream(ACCESS_DENIED_FILE)) {
                 inputFile.setMedia(inputStream, ACCESS_DENIED_FILE);
@@ -53,18 +55,21 @@ public class CommanderBot extends TelegramLongPollingBot {
                 LOGGER.error("Error while loading {}", ACCESS_DENIED_FILE);
             }
         } else {
+            // Если ID файла был закэширован, просто отправляем его по ID
             inputFile.setMedia(ACCESS_DENIED_FILE_ID);
             sendAccessDeniedResponse(message, inputFile);
         }
     }
 
     private void sendAccessDeniedResponse(Message message, InputFile responseFile) {
+        // Создаем сообщение-видеоответ
         SendVideo accessDeniedVideo = new SendVideo();
         accessDeniedVideo.setChatId(message.getChatId());
         accessDeniedVideo.setVideo(responseFile);
 
         try {
             Message sentMessage = execute(accessDeniedVideo);
+            // Обновляем в кэше ID файла видеоответа
             ACCESS_DENIED_FILE_ID = sentMessage.getVideo().getFileId();
         } catch (TelegramApiException e) {
             LOGGER.error("Error while sending response to {}", message);
