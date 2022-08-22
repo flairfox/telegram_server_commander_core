@@ -39,10 +39,7 @@ public class CommanderBot extends TelegramLongPollingBot {
     }
 
     private void handleAccessDeniedError(Update update) {
-        long chatId = update.getMessage().getChatId();
-        long userId = update.getMessage().getFrom().getId();
-
-        LOGGER.warn("User with ID {} is not an administrator", userId);
+        LOGGER.warn("User with ID {} is not an administrator", update.getMessage().getFrom().getId());
 
         try {
             SendVideo accessDeniedVideo = new SendVideo();
@@ -52,7 +49,7 @@ public class CommanderBot extends TelegramLongPollingBot {
             } else {
                 inputFile.setMedia(ACCESS_DENIED_FILE_ID);
             }
-            accessDeniedVideo.setChatId(chatId);
+            accessDeniedVideo.setChatId(update.getMessage().getChatId());
             accessDeniedVideo.setVideo(inputFile);
 
             Message sentMessage = execute(accessDeniedVideo);
