@@ -39,26 +39,35 @@ public class CommanderBot extends TelegramLongPollingBot {
     private void handleAccessDeniedError(Update update) {
         LOGGER.warn("User with ID {} is not an administrator", update.getMessage().getFrom().getId());
 
-        try {
-            SendVideo accessDeniedVideo = new SendVideo();
-            InputFile inputFile = new InputFile();
-            if (ACCESS_DENIED_FILE_ID == null) {
-                ClassLoader classLoader = getClass().getClassLoader();
-                try (InputStream inputStream = classLoader.getResourceAsStream(ACCESS_DENIED_FILE)) {
-                    inputFile.setMedia(inputStream, ACCESS_DENIED_FILE);
-                } catch (IOException e) {
-                    LOGGER.error("Error while loading {}", ACCESS_DENIED_FILE);
-                }
-            } else {
-                inputFile.setMedia(ACCESS_DENIED_FILE_ID);
-            }
-            accessDeniedVideo.setChatId(update.getMessage().getChatId());
-            accessDeniedVideo.setVideo(inputFile);
+        // Сообщение на которое нужно отправить ответ
+        Message message = update.getMessage();
 
+        // Файл с видео-ответом
+        InputFile inputFile = new InputFile();
+        if (ACCESS_DENIED_FILE_ID == null) {
+            ClassLoader classLoader = getClass().getClassLoader();
+            try (InputStream inputStream = classLoader.getResourceAsStream(ACCESS_DENIED_FILE)) {
+                inputFile.setMedia(inputStream, ACCESS_DENIED_FILE);
+                sendAccessDeniedResponse(message, inputFile);
+            } catch (IOException e) {
+                LOGGER.error("Error while loading {}", ACCESS_DENIED_FILE);
+            }
+        } else {
+            inputFile.setMedia(ACCESS_DENIED_FILE_ID);
+            sendAccessDeniedResponse(message, inputFile);
+        }
+    }
+
+    private void sendAccessDeniedResponse(Message message, InputFile responseFile) {
+        SendVideo accessDeniedVideo = new SendVideo();
+        accessDeniedVideo.setChatId(message.getChatId());
+        accessDeniedVideo.setVideo(responseFile);
+
+        try {
             Message sentMessage = execute(accessDeniedVideo);
             ACCESS_DENIED_FILE_ID = sentMessage.getVideo().getFileId();
         } catch (TelegramApiException e) {
-            LOGGER.error("Error while sending response to {}", update.getMessage());
+            LOGGER.error("Error while sending response to {}", message);
         }
     }
 
