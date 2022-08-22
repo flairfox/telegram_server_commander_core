@@ -32,6 +32,7 @@ public class CommanderBot extends TelegramLongPollingBot {
         long userId = update.getMessage().getFrom().getId();
         if (userId != ADMIN_USER_ID) {
             handleAccessDeniedError(update);
+            return;
         }
 
         List<Container> containers = DockerApi.instance.getContainers();
@@ -64,9 +65,7 @@ public class CommanderBot extends TelegramLongPollingBot {
     private File loadAccessDeniedFile() throws FileNotFoundException, URISyntaxException {
         ClassLoader classLoader = getClass().getClassLoader();
         URL resource = classLoader.getResource(ACCESS_DENIED_FILE);
-        if (resource == null) {
-            throw new FileNotFoundException();
-        }
+        if (resource == null) throw new FileNotFoundException();
 
         return new File(resource.toURI());
     }
