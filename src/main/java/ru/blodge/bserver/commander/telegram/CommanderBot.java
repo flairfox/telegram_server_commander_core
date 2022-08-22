@@ -29,8 +29,7 @@ public class CommanderBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         LOGGER.info("Received new update {}", update);
 
-        long userId = update.getMessage().getFrom().getId();
-        if (userId != ADMIN_USER_ID) {
+        if (update.getMessage().getFrom().getId() != ADMIN_USER_ID) {
             handleAccessDeniedError(update);
             return;
         }
