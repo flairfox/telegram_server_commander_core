@@ -27,14 +27,15 @@ public class DockerImagesMenuEntry implements MenuEntry {
         StringBuilder sb = new StringBuilder();
         DockerAgent.instance().getImages().forEach(image -> {
             sb.append("- ");
-            sb.append(image.getId());
+            if (image.getRepoTags()[0].startsWith("<none>")) sb.append("---");
+            else sb.append(image.getRepoTags()[0]);
             sb.append("\n");
         });
 
         return """
                 <b>Список docker-образов</b>
                                 
-                <pre>%s</pre>
+                <code>%s</code>
                 """.formatted(sb);
     }
 
