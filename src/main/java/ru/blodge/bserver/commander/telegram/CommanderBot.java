@@ -9,19 +9,32 @@ import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.blodge.bserver.commander.docker.DockerApi;
+import ru.blodge.bserver.commander.docker.DockerAgent;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import static ru.blodge.bserver.commander.telegram.TelegramBotConfig.ACCESS_DENIED_FILE;
+import static ru.blodge.bserver.commander.telegram.TelegramBotConfig.ADMIN_USER_ID;
+import static ru.blodge.bserver.commander.telegram.TelegramBotConfig.TELEGRAM_BOT_TOKEN;
+import static ru.blodge.bserver.commander.telegram.TelegramBotConfig.TELEGRAM_BOT_USERNAME;
+
 public class CommanderBot extends TelegramLongPollingBot {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommanderBot.class);
-    private static final long ADMIN_USER_ID = Long.parseLong(System.getenv("ADMIN_USER_ID"));
-    private static final String ACCESS_DENIED_FILE = "media/access_denied.mp4";
+
+    private static final CommanderBot instance = new CommanderBot();
+
+    public static CommanderBot instance() {
+        return instance;
+    }
+
 
     private static String ACCESS_DENIED_FILE_ID = null;
+
+    private CommanderBot() {
+    }
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -32,7 +45,7 @@ public class CommanderBot extends TelegramLongPollingBot {
             return;
         }
 
-        List<Container> containers = DockerApi.instance.getContainers();
+        List<Container> containers = DockerAgent.instance().getContainers();
         containers.forEach(container -> System.out.println(container.getNames()[0]));
     }
 
@@ -78,12 +91,12 @@ public class CommanderBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return System.getenv("TELEGRAM_BOT_TOKEN");
+        return TELEGRAM_BOT_TOKEN;
     }
 
     @Override
     public String getBotUsername() {
-        return System.getenv("TELEGRAM_BOT_USERNAME");
+        return TELEGRAM_BOT_USERNAME;
     }
 
 }

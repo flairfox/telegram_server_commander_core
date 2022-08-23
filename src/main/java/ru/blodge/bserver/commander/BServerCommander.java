@@ -14,7 +14,7 @@ public class BServerCommander {
     public static void main(String[] args) {
         try {
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-            botsApi.registerBot(new CommanderBot());
+            botsApi.registerBot(CommanderBot.instance());
 
             LOGGER.info("BServerCommander bot is up and running!");
         } catch (TelegramApiException e) {

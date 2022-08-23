@@ -13,21 +13,29 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public enum DockerApi {
+public class DockerAgent {
 
-    instance;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DockerAgent.class);
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(DockerApi.class);
+    private static final DockerAgent instance = new DockerAgent();
 
-    private final DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
-            .withDockerHost("tcp://0.0.0.0:2374")
-            .build();
+    public static DockerAgent instance() {
+        return instance;
+    }
 
-    private final DockerHttpClient dockerHttpClient = new ApacheDockerHttpClient.Builder()
-            .dockerHost(dockerClientConfig.getDockerHost())
-            .build();
+    private final DockerClient dockerClient;
 
-    private final DockerClient dockerClient = DockerClientImpl.getInstance(dockerClientConfig, dockerHttpClient);
+    private DockerAgent() {
+        DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
+                .withDockerHost("tcp://0.0.0.0:2374")
+                .build();
+
+        DockerHttpClient dockerHttpClient = new ApacheDockerHttpClient.Builder()
+                .dockerHost(dockerClientConfig.getDockerHost())
+                .build();
+
+        this.dockerClient = DockerClientImpl.getInstance(dockerClientConfig, dockerHttpClient);
+    }
 
     public List<Image> getImages() {
         try {
