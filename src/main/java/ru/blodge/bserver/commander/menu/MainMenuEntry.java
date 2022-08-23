@@ -20,8 +20,12 @@ public class MainMenuEntry implements MenuEntry {
     }
 
     @Override
-    public String getDescription() {
-        return "Это главное меню Бобрового Сервера, здесь можно узнать о:";
+    public String getHtmlBody() {
+        return """
+                <b>Главное меню</b>
+                                
+                <pre>Это главное меню Бобрового Сервера, здесь можно узнать о:</pre>
+                """;
     }
 
     @Override

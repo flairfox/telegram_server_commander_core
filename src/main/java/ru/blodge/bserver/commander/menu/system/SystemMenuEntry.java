@@ -21,8 +21,12 @@ public class SystemMenuEntry implements MenuEntry {
     }
 
     @Override
-    public String getDescription() {
-        return "Общая информация о системе";
+    public String getHtmlBody() {
+        return """
+                <b>Общая информация о системе</b>
+                                
+                <pre>Тут пока ничего нет</pre>
+                """;
     }
 
     @Override

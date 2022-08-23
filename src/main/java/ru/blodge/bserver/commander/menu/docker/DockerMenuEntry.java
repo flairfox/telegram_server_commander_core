@@ -23,8 +23,12 @@ public class DockerMenuEntry implements MenuEntry {
     }
 
     @Override
-    public String getDescription() {
-        return "Информация о Docker";
+    public String getHtmlBody() {
+        return """
+                <b>Docker</b>
+                                
+                <pre>Все что вы хотели знать о Docker</pre>
+                """;
     }
 
     @Override

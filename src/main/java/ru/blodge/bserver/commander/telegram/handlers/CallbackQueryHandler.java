@@ -30,11 +30,7 @@ public class CallbackQueryHandler implements UpdateHandler {
         menuMessage.setChatId(chatId);
         menuMessage.setMessageId(messageId);
         menuMessage.setParseMode("html");
-        menuMessage.setText("""
-                <b>%s</b>
-                                
-                <pre>%s</pre>"""
-                .formatted(menuEntry.getTitle(), menuEntry.getDescription()));
+        menuMessage.setText(menuEntry.getHtmlBody());
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
@@ -53,12 +49,21 @@ public class CallbackQueryHandler implements UpdateHandler {
             }
         }
 
+        if (menuEntry.allowUpdate()) {
+            List<InlineKeyboardButton> updateRow = new ArrayList<>();
+            InlineKeyboardButton updateButton = new InlineKeyboardButton();
+            updateButton.setText("Обновить");
+            updateButton.setCallbackData(menuEntry.getSelector());
+            updateRow.add(updateButton);
+            rowsInline.add(updateRow);
+        }
+
         if (menuEntry.getPreviousMenuSelector() != null) {
             List<InlineKeyboardButton> backRow = new ArrayList<>();
-            InlineKeyboardButton systemButton = new InlineKeyboardButton();
-            systemButton.setText("Назад");
-            systemButton.setCallbackData(menuEntry.getPreviousMenuSelector());
-            backRow.add(systemButton);
+            InlineKeyboardButton backButton = new InlineKeyboardButton();
+            backButton.setText("Назад");
+            backButton.setCallbackData(menuEntry.getPreviousMenuSelector());
+            backRow.add(backButton);
             rowsInline.add(backRow);
         }
 

@@ -39,11 +39,7 @@ public class MenuCommandHandler implements UpdateHandler {
         SendMessage menuMessage = new SendMessage();
         menuMessage.setChatId(chatId);
         menuMessage.setParseMode("html");
-        menuMessage.setText("""
-                <b>%s</b>
-                                
-                <pre>%s</pre>"""
-                .formatted(menuEntry.getTitle(), menuEntry.getDescription()));
+        menuMessage.setText(menuEntry.getHtmlBody());
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();

@@ -23,14 +23,24 @@ public class DockerImagesMenuEntry implements MenuEntry {
     }
 
     @Override
-    public String getDescription() {
+    public String getHtmlBody() {
         StringBuilder sb = new StringBuilder();
         DockerAgent.instance().getImages().forEach(image -> {
-            sb.append(image.getLabels());
+            sb.append("- ");
+            sb.append(image.getId());
             sb.append("\n");
         });
 
-        return sb.toString();
+        return """
+                <b>Список docker-образов</b>
+                                
+                <pre>%s</pre>
+                """.formatted(sb);
+    }
+
+    @Override
+    public boolean allowUpdate() {
+        return true;
     }
 
     @Override

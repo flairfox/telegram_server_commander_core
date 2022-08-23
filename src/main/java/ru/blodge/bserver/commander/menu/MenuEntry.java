@@ -8,10 +8,14 @@ public interface MenuEntry {
 
     String getTitle();
 
-    String getDescription();
+    String getHtmlBody();
 
     String getPreviousMenuSelector();
 
     List<String> getSubMenuSelectors();
+
+    default boolean allowUpdate() {
+        return false;
+    }
 
 }

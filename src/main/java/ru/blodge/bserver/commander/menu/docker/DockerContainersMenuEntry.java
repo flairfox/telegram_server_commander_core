@@ -22,14 +22,26 @@ public class DockerContainersMenuEntry implements MenuEntry {
     }
 
     @Override
-    public String getDescription() {
+    public String getHtmlBody() {
         StringBuilder sb = new StringBuilder();
         DockerAgent.instance().getContainers().forEach(container -> {
+            sb.append("- ");
             sb.append(container.getNames()[0]);
+            sb.append("\t");
+            sb.append(container.getStatus());
             sb.append("\n");
         });
 
-        return sb.toString();
+        return """
+                <b>Список docker-контейнеров</b>
+                                
+                <pre>%s</pre>
+                """.formatted(sb);
+    }
+
+    @Override
+    public boolean allowUpdate() {
+        return true;
     }
 
     @Override
