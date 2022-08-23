@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.blodge.bserver.commander.telegram.dispatchers.TelegramUpdateDispatcher;
+import ru.blodge.bserver.commander.telegram.dispatchers.UpdateDispatcher;
 
 import static ru.blodge.bserver.commander.telegram.TelegramBotConfig.TELEGRAM_BOT_TOKEN;
 import static ru.blodge.bserver.commander.telegram.TelegramBotConfig.TELEGRAM_BOT_USERNAME;
@@ -18,7 +20,7 @@ public class CommanderBot extends TelegramLongPollingBot {
         return instance;
     }
 
-    private final TelegramUpdateDispatcher dispatcher = new TelegramUpdateDispatcher();
+    private final UpdateDispatcher dispatcher = new TelegramUpdateDispatcher();
 
     private CommanderBot() {
     }

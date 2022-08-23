@@ -14,9 +14,9 @@ import java.io.InputStream;
 
 import static ru.blodge.bserver.commander.telegram.TelegramBotConfig.ACCESS_DENIED_FILE;
 
-public class AccessDeniedErrorHandler {
+public class AccessDeniedErrorHandler implements UpdateHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommanderBot.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccessDeniedErrorHandler.class);
 
     private static String ACCESS_DENIED_FILE_ID = null;
 
