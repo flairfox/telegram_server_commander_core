@@ -4,24 +4,21 @@ import ru.blodge.bserver.commander.menu.MenuEntry;
 
 import java.util.List;
 
-import static ru.blodge.bserver.commander.menu.MainMenuEntry.MAIN_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.menu.MenuEntryFactory.MAIN_MENU_ENTRY_SELECTOR;
 
-public class SystemMenuEntry implements MenuEntry {
+public class SystemMenuEntry extends MenuEntry {
 
-    public static final String SYSTEM_MENU_SELECTOR = "system-menu-selector";
-
-    @Override
-    public String getSelector() {
-        return SYSTEM_MENU_SELECTOR;
+    public SystemMenuEntry(String menuEntrySelector) {
+        super(menuEntrySelector);
     }
 
     @Override
-    public String getTitle() {
+    public String getTitleMarkdown() {
         return "Система";
     }
 
     @Override
-    public String getHtmlBody() {
+    public String getBodyMarkdown() {
         return """
                 <b>Общая информация о системе</b>
                                 
@@ -30,12 +27,12 @@ public class SystemMenuEntry implements MenuEntry {
     }
 
     @Override
-    public String getPreviousMenuSelector() {
-        return MAIN_MENU_SELECTOR;
+    public String getPreviousMenuEntrySelector() {
+        return MAIN_MENU_ENTRY_SELECTOR;
     }
 
     @Override
-    public List<String> getSubMenuSelectors() {
+    public List<String> getSubMenuEntriesSelectors() {
         return null;
     }
 

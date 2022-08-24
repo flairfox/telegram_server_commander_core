@@ -4,26 +4,23 @@ import ru.blodge.bserver.commander.menu.MenuEntry;
 
 import java.util.List;
 
-import static ru.blodge.bserver.commander.menu.MainMenuEntry.MAIN_MENU_SELECTOR;
-import static ru.blodge.bserver.commander.menu.docker.DockerContainersMenuEntry.DOCKER_CONTAINERS_MENU_SELECTOR;
-import static ru.blodge.bserver.commander.menu.docker.DockerImagesMenuEntry.DOCKER_IMAGES_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.menu.MenuEntryFactory.DOCKER_CONTAINERS_MENU_ENTRY_SELECTOR;
+import static ru.blodge.bserver.commander.menu.MenuEntryFactory.DOCKER_IMAGES_MENU_ENTRY_SELECTOR;
+import static ru.blodge.bserver.commander.menu.MenuEntryFactory.MAIN_MENU_ENTRY_SELECTOR;
 
-public class DockerMenuEntry implements MenuEntry {
+public class DockerMenuEntry extends MenuEntry {
 
-    public static final String DOCKER_MENU_SELECTOR = "docker-menu-selector";
-
-    @Override
-    public String getSelector() {
-        return DOCKER_MENU_SELECTOR;
+    public DockerMenuEntry(String menuEntrySelector) {
+        super(menuEntrySelector);
     }
 
     @Override
-    public String getTitle() {
+    public String getTitleMarkdown() {
         return "Docker";
     }
 
     @Override
-    public String getHtmlBody() {
+    public String getBodyMarkdown() {
         return """
                 <b>Docker</b>
                                 
@@ -32,15 +29,15 @@ public class DockerMenuEntry implements MenuEntry {
     }
 
     @Override
-    public String getPreviousMenuSelector() {
-        return MAIN_MENU_SELECTOR;
+    public String getPreviousMenuEntrySelector() {
+        return MAIN_MENU_ENTRY_SELECTOR;
     }
 
     @Override
-    public List<String> getSubMenuSelectors() {
+    public List<String> getSubMenuEntriesSelectors() {
         return List.of(
-                DOCKER_IMAGES_MENU_SELECTOR,
-                DOCKER_CONTAINERS_MENU_SELECTOR
+                DOCKER_IMAGES_MENU_ENTRY_SELECTOR,
+                DOCKER_CONTAINERS_MENU_ENTRY_SELECTOR
         );
     }
 

@@ -1,42 +1,30 @@
 package ru.blodge.bserver.commander.menu.docker;
 
+import com.github.dockerjava.api.model.Container;
 import ru.blodge.bserver.commander.docker.DockerAgent;
 import ru.blodge.bserver.commander.menu.MenuEntry;
 
 import java.util.List;
 
-import static ru.blodge.bserver.commander.menu.docker.DockerMenuEntry.DOCKER_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.menu.MenuEntryFactory.DOCKER_CONTAINER_MENU_ENTRY_SELECTOR;
+import static ru.blodge.bserver.commander.menu.MenuEntryFactory.DOCKER_MENU_ENTRY_SELECTOR;
 
-public class DockerContainersMenuEntry implements MenuEntry {
+public class DockerContainersMenuEntry extends MenuEntry {
 
-    public static final String DOCKER_CONTAINERS_MENU_SELECTOR = "docker-containers-menu-selector";
-
-    @Override
-    public String getSelector() {
-        return DOCKER_CONTAINERS_MENU_SELECTOR;
+    public DockerContainersMenuEntry(String menuEntrySelector) {
+        super(menuEntrySelector);
     }
 
     @Override
-    public String getTitle() {
+    public String getTitleMarkdown() {
         return "Список docker-контейнеров";
     }
 
     @Override
-    public String getHtmlBody() {
-        StringBuilder sb = new StringBuilder();
-        DockerAgent.instance().getContainers().forEach(container -> {
-            sb.append("- ");
-            sb.append(container.getNames()[0]);
-            sb.append("\t");
-            sb.append(container.getStatus());
-            sb.append("\n");
-        });
-
+    public String getBodyMarkdown() {
         return """
                 <b>Список docker-контейнеров</b>
-                                
-                <pre>%s</pre>
-                """.formatted(sb);
+                """;
     }
 
     @Override
@@ -45,14 +33,19 @@ public class DockerContainersMenuEntry implements MenuEntry {
     }
 
     @Override
-    public String getPreviousMenuSelector() {
-        return DOCKER_MENU_SELECTOR;
+    public String getPreviousMenuEntrySelector() {
+        return DOCKER_MENU_ENTRY_SELECTOR;
     }
 
     @Override
-    public List<String> getSubMenuSelectors() {
-        return null;
+    public List<String> getSubMenuEntriesSelectors() {
+        return DockerAgent.instance().getContainers().stream()
+                .map(this::buildDockerContainerMenuEntrySelector)
+                .toList();
     }
 
+    private String buildDockerContainerMenuEntrySelector(Container container) {
+        return DOCKER_CONTAINER_MENU_ENTRY_SELECTOR + "." + container.getId().substring(0, 12);
+    }
 
 }

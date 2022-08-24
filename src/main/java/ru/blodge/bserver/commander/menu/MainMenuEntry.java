@@ -2,25 +2,22 @@ package ru.blodge.bserver.commander.menu;
 
 import java.util.List;
 
-import static ru.blodge.bserver.commander.menu.docker.DockerMenuEntry.DOCKER_MENU_SELECTOR;
-import static ru.blodge.bserver.commander.menu.system.SystemMenuEntry.SYSTEM_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.menu.MenuEntryFactory.DOCKER_MENU_ENTRY_SELECTOR;
+import static ru.blodge.bserver.commander.menu.MenuEntryFactory.SYSTEM_MENU_ENTRY_SELECTOR;
 
-public class MainMenuEntry implements MenuEntry {
+public class MainMenuEntry extends MenuEntry {
 
-    public static final String MAIN_MENU_SELECTOR = "main-menu-selector";
-
-    @Override
-    public String getSelector() {
-        return MAIN_MENU_SELECTOR;
+    public MainMenuEntry(String menuEntrySelector) {
+        super(menuEntrySelector);
     }
 
     @Override
-    public String getTitle() {
+    public String getTitleMarkdown() {
         return "Главное меню";
     }
 
     @Override
-    public String getHtmlBody() {
+    public String getBodyMarkdown() {
         return """
                 <b>Главное меню</b>
                                 
@@ -29,15 +26,15 @@ public class MainMenuEntry implements MenuEntry {
     }
 
     @Override
-    public String getPreviousMenuSelector() {
+    public String getPreviousMenuEntrySelector() {
         return null;
     }
 
     @Override
-    public List<String> getSubMenuSelectors() {
+    public List<String> getSubMenuEntriesSelectors() {
         return List.of(
-                SYSTEM_MENU_SELECTOR,
-                DOCKER_MENU_SELECTOR
+                SYSTEM_MENU_ENTRY_SELECTOR,
+                DOCKER_MENU_ENTRY_SELECTOR
         );
     }
 

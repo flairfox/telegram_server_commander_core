@@ -5,25 +5,21 @@ import ru.blodge.bserver.commander.menu.MenuEntry;
 
 import java.util.List;
 
-import static ru.blodge.bserver.commander.menu.docker.DockerMenuEntry.DOCKER_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.menu.MenuEntryFactory.DOCKER_MENU_ENTRY_SELECTOR;
 
-public class DockerImagesMenuEntry implements MenuEntry {
+public class DockerImagesMenuEntry extends MenuEntry {
 
-    public static final String DOCKER_IMAGES_MENU_SELECTOR = "docker-images-menu-selector";
-
-
-    @Override
-    public String getSelector() {
-        return DOCKER_IMAGES_MENU_SELECTOR;
+    public DockerImagesMenuEntry(String menuEntrySelector) {
+        super(menuEntrySelector);
     }
 
     @Override
-    public String getTitle() {
+    public String getTitleMarkdown() {
         return "Список docker-образов";
     }
 
     @Override
-    public String getHtmlBody() {
+    public String getBodyMarkdown() {
         StringBuilder sb = new StringBuilder();
         DockerAgent.instance().getImages().forEach(image -> {
             sb.append("- ");
@@ -45,12 +41,12 @@ public class DockerImagesMenuEntry implements MenuEntry {
     }
 
     @Override
-    public String getPreviousMenuSelector() {
-        return DOCKER_MENU_SELECTOR;
+    public String getPreviousMenuEntrySelector() {
+        return DOCKER_MENU_ENTRY_SELECTOR;
     }
 
     @Override
-    public List<String> getSubMenuSelectors() {
+    public List<String> getSubMenuEntriesSelectors() {
         return null;
     }
 

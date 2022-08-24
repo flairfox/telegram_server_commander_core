@@ -14,7 +14,8 @@ import ru.blodge.bserver.commander.telegram.CommanderBot;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.blodge.bserver.commander.menu.MenuSelectorHolder.getMenuEntry;
+import static ru.blodge.bserver.commander.menu.MenuEntryFactory.MAIN_MENU_ENTRY_SELECTOR;
+import static ru.blodge.bserver.commander.menu.MenuEntryFactory.buildMenuEntry;
 
 public class MenuCommandHandler implements UpdateHandler {
 
@@ -24,7 +25,7 @@ public class MenuCommandHandler implements UpdateHandler {
     public void handle(Update update) {
         long chatId = update.getMessage().getChatId();
 
-        SendMessage menuMessage = buildMainMenu(chatId, new MainMenuEntry());
+        SendMessage menuMessage = buildMainMenu(chatId);
         menuMessage.setChatId(chatId);
 
         try {
@@ -34,23 +35,24 @@ public class MenuCommandHandler implements UpdateHandler {
         }
     }
 
-    private SendMessage buildMainMenu(long chatId, MenuEntry menuEntry) {
+    private SendMessage buildMainMenu(long chatId) {
+        MenuEntry mainMenuEntry = new MainMenuEntry(MAIN_MENU_ENTRY_SELECTOR);
 
         SendMessage menuMessage = new SendMessage();
         menuMessage.setChatId(chatId);
         menuMessage.setParseMode("html");
-        menuMessage.setText(menuEntry.getHtmlBody());
+        menuMessage.setText(mainMenuEntry.getBodyMarkdown());
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
-        for (String menuSelector : menuEntry.getSubMenuSelectors()) {
-            MenuEntry submenuEntry = getMenuEntry(menuSelector);
+        for (String menuSelector : mainMenuEntry.getSubMenuEntriesSelectors()) {
+            MenuEntry submenuEntry = buildMenuEntry(menuSelector);
 
             List<InlineKeyboardButton> keyboardRow = new ArrayList<>();
             InlineKeyboardButton systemButton = new InlineKeyboardButton();
-            systemButton.setText(submenuEntry.getTitle());
-            systemButton.setCallbackData(submenuEntry.getSelector());
+            systemButton.setText(submenuEntry.getTitleMarkdown());
+            systemButton.setCallbackData(submenuEntry.getMenuEntrySelector());
             keyboardRow.add(systemButton);
 
             rowsInline.add(keyboardRow);

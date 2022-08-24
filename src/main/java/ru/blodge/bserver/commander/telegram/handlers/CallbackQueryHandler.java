@@ -13,7 +13,7 @@ import ru.blodge.bserver.commander.telegram.CommanderBot;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.blodge.bserver.commander.menu.MenuSelectorHolder.getMenuEntry;
+import static ru.blodge.bserver.commander.menu.MenuEntryFactory.buildMenuEntry;
 
 public class CallbackQueryHandler implements UpdateHandler {
 
@@ -24,25 +24,25 @@ public class CallbackQueryHandler implements UpdateHandler {
         long chatId = update.getCallbackQuery().getMessage().getChatId();
         int messageId = update.getCallbackQuery().getMessage().getMessageId();
 
-        MenuEntry menuEntry = getMenuEntry(update.getCallbackQuery().getData());
+        MenuEntry menuEntry = buildMenuEntry(update.getCallbackQuery().getData());
 
         EditMessageText menuMessage = new EditMessageText();
         menuMessage.setChatId(chatId);
         menuMessage.setMessageId(messageId);
         menuMessage.setParseMode("html");
-        menuMessage.setText(menuEntry.getHtmlBody());
+        menuMessage.setText(menuEntry.getBodyMarkdown());
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
-        if (menuEntry.getSubMenuSelectors() != null) {
-            for (String menuSelector : menuEntry.getSubMenuSelectors()) {
-                MenuEntry submenuEntry = getMenuEntry(menuSelector);
+        if (menuEntry.getSubMenuEntriesSelectors() != null) {
+            for (String menuSelector : menuEntry.getSubMenuEntriesSelectors()) {
+                MenuEntry submenuEntry = buildMenuEntry(menuSelector);
 
                 List<InlineKeyboardButton> keyboardRow = new ArrayList<>();
                 InlineKeyboardButton systemButton = new InlineKeyboardButton();
-                systemButton.setText(submenuEntry.getTitle());
-                systemButton.setCallbackData(submenuEntry.getSelector());
+                systemButton.setText(submenuEntry.getTitleMarkdown());
+                systemButton.setCallbackData(submenuEntry.getMenuEntrySelector());
                 keyboardRow.add(systemButton);
 
                 rowsInline.add(keyboardRow);
@@ -53,16 +53,16 @@ public class CallbackQueryHandler implements UpdateHandler {
             List<InlineKeyboardButton> updateRow = new ArrayList<>();
             InlineKeyboardButton updateButton = new InlineKeyboardButton();
             updateButton.setText("Обновить");
-            updateButton.setCallbackData(menuEntry.getSelector());
+            updateButton.setCallbackData(menuEntry.getMenuEntrySelector());
             updateRow.add(updateButton);
             rowsInline.add(updateRow);
         }
 
-        if (menuEntry.getPreviousMenuSelector() != null) {
+        if (menuEntry.getPreviousMenuEntrySelector() != null) {
             List<InlineKeyboardButton> backRow = new ArrayList<>();
             InlineKeyboardButton backButton = new InlineKeyboardButton();
             backButton.setText("Назад");
-            backButton.setCallbackData(menuEntry.getPreviousMenuSelector());
+            backButton.setCallbackData(menuEntry.getPreviousMenuEntrySelector());
             backRow.add(backButton);
             rowsInline.add(backRow);
         }

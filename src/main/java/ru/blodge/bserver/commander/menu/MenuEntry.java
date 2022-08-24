@@ -2,20 +2,28 @@ package ru.blodge.bserver.commander.menu;
 
 import java.util.List;
 
-public interface MenuEntry {
+public abstract class MenuEntry {
 
-    String getSelector();
+    protected String menuEntrySelector;
 
-    String getTitle();
+    public MenuEntry(String menuEntrySelector) {
+        this.menuEntrySelector = menuEntrySelector;
+    }
 
-    String getHtmlBody();
+    public String getMenuEntrySelector() {
+        return menuEntrySelector;
+    }
 
-    String getPreviousMenuSelector();
-
-    List<String> getSubMenuSelectors();
-
-    default boolean allowUpdate() {
+    public boolean allowUpdate() {
         return false;
     }
+
+    public abstract String getTitleMarkdown();
+
+    public abstract String getBodyMarkdown();
+
+    public abstract String getPreviousMenuEntrySelector();
+
+    public abstract List<String> getSubMenuEntriesSelectors();
 
 }
