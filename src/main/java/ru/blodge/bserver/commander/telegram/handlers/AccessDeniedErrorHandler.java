@@ -12,7 +12,7 @@ import ru.blodge.bserver.commander.telegram.CommanderBot;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static ru.blodge.bserver.commander.telegram.TelegramBotConfig.ACCESS_DENIED_FILE;
+import static ru.blodge.bserver.commander.configuration.TelegramBotConfig.ACCESS_DENIED_FILE;
 
 public class AccessDeniedErrorHandler implements UpdateHandler {
 

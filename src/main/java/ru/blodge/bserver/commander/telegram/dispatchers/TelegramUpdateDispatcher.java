@@ -7,7 +7,7 @@ import ru.blodge.bserver.commander.telegram.handlers.AccessDeniedErrorHandler;
 import ru.blodge.bserver.commander.telegram.handlers.CallbackQueryHandler;
 import ru.blodge.bserver.commander.telegram.handlers.UpdateHandler;
 
-import static ru.blodge.bserver.commander.telegram.TelegramBotConfig.ADMIN_USER_ID;
+import static ru.blodge.bserver.commander.configuration.TelegramBotConfig.ADMIN_USER_ID;
 
 public class TelegramUpdateDispatcher implements UpdateDispatcher {
 

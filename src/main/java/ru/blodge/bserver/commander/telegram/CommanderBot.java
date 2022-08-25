@@ -7,8 +7,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.blodge.bserver.commander.telegram.dispatchers.TelegramUpdateDispatcher;
 import ru.blodge.bserver.commander.telegram.dispatchers.UpdateDispatcher;
 
-import static ru.blodge.bserver.commander.telegram.TelegramBotConfig.TELEGRAM_BOT_TOKEN;
-import static ru.blodge.bserver.commander.telegram.TelegramBotConfig.TELEGRAM_BOT_USERNAME;
+import static ru.blodge.bserver.commander.configuration.TelegramBotConfig.TELEGRAM_BOT_TOKEN;
+import static ru.blodge.bserver.commander.configuration.TelegramBotConfig.TELEGRAM_BOT_USERNAME;
 
 public class CommanderBot extends TelegramLongPollingBot {
 

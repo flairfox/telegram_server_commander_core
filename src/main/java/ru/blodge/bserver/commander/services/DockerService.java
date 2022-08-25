@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static ru.blodge.bserver.commander.configuration.TelegramBotConfig.DOCKER_HOST;
+
 public class DockerService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerService.class);
@@ -28,7 +30,7 @@ public class DockerService {
 
     private DockerService() {
         DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost(System.getenv("DOCKER_HOST"))
+                .withDockerHost(DOCKER_HOST)
                 .build();
 
         DockerHttpClient dockerHttpClient = new ApacheDockerHttpClient.Builder()
