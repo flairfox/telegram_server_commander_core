@@ -23,18 +23,14 @@ public class DockerContainerMessageFactory implements MessageFactory {
 
         InspectContainerResponse containerResponse = DockerAgent.instance().getContainer(containerId);
 
-        switch (action) {
-            case "r?" -> {
-                return buildContainerRestartConfirmationMenu(containerResponse);
-            }
+        return switch (action) {
+            case "r?" -> buildContainerRestartConfirmationMenu(containerResponse);
             case "r!" -> {
                 DockerAgent.instance().restartContainer(containerId);
-                return buildContainerRestartingMenu(containerResponse);
+                yield buildContainerRestartingMenu(containerResponse);
             }
-            default -> {
-                return buildContainerInfoMenu(containerResponse);
-            }
-        }
+            default -> buildContainerInfoMenu(containerResponse);
+        };
 
     }
 
