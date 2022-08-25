@@ -3,6 +3,7 @@ package ru.blodge.bserver.commander.telegram.menu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.blodge.bserver.commander.telegram.menu.docker.DockerContainerMenuFactory;
 import ru.blodge.bserver.commander.telegram.menu.docker.DockerContainersMenuFactory;
 import ru.blodge.bserver.commander.telegram.menu.docker.DockerImagesMenuFactory;
@@ -41,9 +42,9 @@ public class MenuFactory implements MessageFactory {
     }
 
     @Override
-    public EditMessageText buildMenu(String callbackData) {
-        String factorySelector = callbackData.split("\\.")[0];
-        return factorySelectorMap.get(factorySelector).buildMenu(callbackData);
+    public EditMessageText buildMenu(CallbackQuery callbackQuery) {
+        String factorySelector = callbackQuery.getData().split("\\.")[0];
+        return factorySelectorMap.get(factorySelector).buildMenu(callbackQuery);
     }
 
 }

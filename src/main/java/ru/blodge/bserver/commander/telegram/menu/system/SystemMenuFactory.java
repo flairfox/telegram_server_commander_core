@@ -1,6 +1,7 @@
 package ru.blodge.bserver.commander.telegram.menu.system;
 
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.blodge.bserver.commander.utils.InlineKeyboardBuilder;
 import ru.blodge.bserver.commander.telegram.menu.MessageFactory;
@@ -10,7 +11,7 @@ import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.MAIN_MENU_SE
 public class SystemMenuFactory implements MessageFactory {
 
     @Override
-    public EditMessageText buildMenu(String callbackData) {
+    public EditMessageText buildMenu(CallbackQuery callbackQuery) {
 
         EditMessageText systemMenuMessage = new EditMessageText();
         systemMenuMessage.setParseMode("markdown");

@@ -1,22 +1,32 @@
 package ru.blodge.bserver.commander.telegram.menu.docker;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.exception.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.blodge.bserver.commander.services.DockerService;
+import ru.blodge.bserver.commander.telegram.menu.MenuFactory;
 import ru.blodge.bserver.commander.telegram.menu.MessageFactory;
 import ru.blodge.bserver.commander.utils.InlineKeyboardBuilder;
 
 import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.DOCKER_CONTAINERS_MENU_SELECTOR;
 import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.DOCKER_CONTAINER_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.utils.Emoji.BACK_EMOJI;
+import static ru.blodge.bserver.commander.utils.Emoji.REFRESH_EMOJI;
 import static ru.blodge.bserver.commander.utils.TimeUtils.formatDuration;
 import static ru.blodge.bserver.commander.utils.TimeUtils.getDuration;
 
 public class DockerContainerMenuFactory implements MessageFactory {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MenuFactory.class);
+
     @Override
-    public EditMessageText buildMenu(String callbackData) {
-        String[] callbackDataArr = callbackData.split("\\.");
+    public EditMessageText buildMenu(CallbackQuery callbackQuery) {
+
+        String[] callbackDataArr = callbackQuery.getData().split("\\.");
         String containerId = callbackDataArr[1];
         String action = callbackDataArr[2];
 
@@ -25,12 +35,34 @@ public class DockerContainerMenuFactory implements MessageFactory {
         return switch (action) {
             case "r?" -> buildContainerRestartConfirmationMenu(containerResponse);
             case "r!" -> {
-                DockerService.instance().restartContainer(containerId);
-                yield buildContainerRestartingMenu(containerResponse);
+                try {
+                    DockerService.instance().restartContainer(containerId);
+                    yield buildContainerRestartingMenu(containerResponse);
+                } catch (NotFoundException e) {
+                    LOGGER.error("Not found container with id {}", containerId);
+                    yield buildContainerNotFoundMenu();
+                }
             }
             default -> buildContainerInfoMenu(containerResponse);
         };
 
+    }
+
+    private EditMessageText buildContainerNotFoundMenu() {
+        EditMessageText mainMenuMessage = new EditMessageText();
+
+        mainMenuMessage.setParseMode("markdown");
+        mainMenuMessage.setText("""
+                *Docker-контейнер с таким ID не найден!*
+                """);
+
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
+                .addButton("ОК", DOCKER_CONTAINERS_MENU_SELECTOR)
+                .build();
+
+        mainMenuMessage.setReplyMarkup(keyboardMarkup);
+
+        return mainMenuMessage;
     }
 
     private EditMessageText buildContainerInfoMenu(InspectContainerResponse containerResponse) {
@@ -55,8 +87,8 @@ public class DockerContainerMenuFactory implements MessageFactory {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
                 .addButton("Перезапустить", buildContainerCallbackData(containerResponse.getId(), "r?"))
                 .nextRow()
-                .addButton("\uD83D\uDD04 Обновить", buildContainerCallbackData(containerResponse.getId(), "d"))
-                .addButton("◀️ Назад", DOCKER_CONTAINERS_MENU_SELECTOR)
+                .addButton(REFRESH_EMOJI + " Обновить", buildContainerCallbackData(containerResponse.getId(), "d"))
+                .addButton(BACK_EMOJI + " Назад", DOCKER_CONTAINERS_MENU_SELECTOR)
                 .build();
 
         mainMenuMessage.setReplyMarkup(keyboardMarkup);

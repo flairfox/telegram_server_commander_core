@@ -16,9 +16,8 @@ public class CallbackQueryHandler implements UpdateHandler {
     public void handle(Update update) {
         long chatId = update.getCallbackQuery().getMessage().getChatId();
         int messageId = update.getCallbackQuery().getMessage().getMessageId();
-        String callbackData = update.getCallbackQuery().getData();
 
-        EditMessageText menuMessage = MenuFactory.instance().buildMenu(callbackData);
+        EditMessageText menuMessage = MenuFactory.instance().buildMenu(update.getCallbackQuery());
         menuMessage.setChatId(chatId);
         menuMessage.setMessageId(messageId);
 
