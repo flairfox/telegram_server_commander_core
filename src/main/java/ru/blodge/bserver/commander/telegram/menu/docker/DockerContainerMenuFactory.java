@@ -72,9 +72,8 @@ public class DockerContainerMenuFactory implements MessageFactory {
 
         InspectContainerResponse.ContainerState containerState = containerResponse.getState();
         String containerStatus = switch (containerState.getStatus()) {
-            case "running" -> GREEN_CIRCLE_EMOJI + "\n" + formatDuration(getDuration(containerState.getStartedAt()));
-            default ->
-                    RED_CIRCLE_EMOJI + " (" + containerState.getExitCodeLong() + ")\n" + formatDuration(getDuration(containerState.getFinishedAt()));
+            case "running" -> GREEN_CIRCLE_EMOJI + " " + formatDuration(getDuration(containerState.getStartedAt()));
+            default -> RED_CIRCLE_EMOJI + " " + formatDuration(getDuration(containerState.getFinishedAt()));
         };
 
         mainMenuMessage.setParseMode("markdown");
