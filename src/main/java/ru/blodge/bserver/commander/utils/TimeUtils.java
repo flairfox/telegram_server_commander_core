@@ -24,9 +24,9 @@ public class TimeUtils {
         duration = duration.minusMinutes(minutes);
         long seconds = duration.getSeconds();
         return
-                (days == 0 ? "" : days + " д., ") +
-                        (hours == 0 ? "" : hours + " ч., ") +
-                        (minutes == 0 ? "" : minutes + " м., ") +
+                (days == 0 ? "" : days + " д. ") +
+                        (hours == 0 ? "" : hours + " ч. ") +
+                        (minutes == 0 ? "" : minutes + " м. ") +
                         (seconds == 0 ? "" : seconds + " с.");
     }
 

@@ -15,6 +15,8 @@ import ru.blodge.bserver.commander.utils.InlineKeyboardBuilder;
 import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.DOCKER_CONTAINERS_MENU_SELECTOR;
 import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.DOCKER_CONTAINER_MENU_SELECTOR;
 import static ru.blodge.bserver.commander.utils.Emoji.BACK_EMOJI;
+import static ru.blodge.bserver.commander.utils.Emoji.GREEN_CIRCLE_EMOJI;
+import static ru.blodge.bserver.commander.utils.Emoji.RED_CIRCLE_EMOJI;
 import static ru.blodge.bserver.commander.utils.Emoji.REFRESH_EMOJI;
 import static ru.blodge.bserver.commander.utils.TimeUtils.formatDuration;
 import static ru.blodge.bserver.commander.utils.TimeUtils.getDuration;
@@ -70,17 +72,20 @@ public class DockerContainerMenuFactory implements MessageFactory {
 
         InspectContainerResponse.ContainerState containerState = containerResponse.getState();
         String containerStatus = switch (containerState.getStatus()) {
-            case "running" -> "Работает " + formatDuration(getDuration(containerState.getStartedAt()));
-            default -> "Неизвестно";
+            case "running" -> GREEN_CIRCLE_EMOJI + " Работает " + formatDuration(getDuration(containerState.getStartedAt()));
+            default -> RED_CIRCLE_EMOJI + " Неизвестно";
         };
 
         mainMenuMessage.setParseMode("markdown");
         mainMenuMessage.setText("""
-                *Docker-контейнер %s*
-                                
-                Состояние: %s
+                *Docker-контейнер*
+                `%s`
+
+                *ID:*\t`%s`
+                *Состояние:*\t%s
                 """.formatted(
                 containerResponse.getName(),
+                containerResponse.getId().substring(0, 12),
                 containerStatus
         ));
 
