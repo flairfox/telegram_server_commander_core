@@ -84,7 +84,7 @@ public class DockerContainerMenuFactory implements MessageFactory {
                 *ID:*\t`%s`
                 *Состояние:*\t%s
                 """.formatted(
-                containerResponse.getName(),
+                containerResponse.getName().substring(1),
                 containerResponse.getId().substring(0, 12),
                 containerStatus
         ));

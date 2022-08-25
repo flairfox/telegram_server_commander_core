@@ -47,7 +47,7 @@ public class DockerContainersMenuFactory implements MessageFactory {
     }
 
     private String buildContainerName(Container container) {
-        return (container.getStatus().startsWith("Up") ? GREEN_CIRCLE_EMOJI : RED_CIRCLE_EMOJI) + " " + container.getNames()[0];
+        return (container.getStatus().startsWith("Up") ? GREEN_CIRCLE_EMOJI : RED_CIRCLE_EMOJI) + " " + container.getNames()[0].substring(1);
     }
 
     private String buildContainerCallbackData(Container container) {
