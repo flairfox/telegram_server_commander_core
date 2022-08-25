@@ -1,13 +1,13 @@
-package ru.blodge.bserver.commander.menu.system;
+package ru.blodge.bserver.commander.telegram.menu.system;
 
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import ru.blodge.bserver.commander.menu.InlineKeyboardBuilder;
-import ru.blodge.bserver.commander.menu.MessageFactory;
+import ru.blodge.bserver.commander.utils.InlineKeyboardBuilder;
+import ru.blodge.bserver.commander.telegram.menu.MessageFactory;
 
-import static ru.blodge.bserver.commander.menu.MenuMessageFactory.MAIN_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.MAIN_MENU_SELECTOR;
 
-public class SystemMessageFactory implements MessageFactory {
+public class SystemMenuFactory implements MessageFactory {
 
     @Override
     public EditMessageText buildMenu(String callbackData) {

@@ -6,11 +6,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.blodge.bserver.commander.menu.InlineKeyboardBuilder;
+import ru.blodge.bserver.commander.utils.InlineKeyboardBuilder;
 import ru.blodge.bserver.commander.telegram.CommanderBot;
 
-import static ru.blodge.bserver.commander.menu.MenuMessageFactory.DOCKER_MENU_SELECTOR;
-import static ru.blodge.bserver.commander.menu.MenuMessageFactory.SYSTEM_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.DOCKER_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.SYSTEM_MENU_SELECTOR;
 
 public class MenuCommandHandler implements UpdateHandler {
 

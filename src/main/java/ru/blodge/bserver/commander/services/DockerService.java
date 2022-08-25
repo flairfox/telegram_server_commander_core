@@ -1,4 +1,4 @@
-package ru.blodge.bserver.commander.docker;
+package ru.blodge.bserver.commander.services;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -14,21 +14,21 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class DockerAgent {
+public class DockerService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DockerAgent.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DockerService.class);
 
-    private static final DockerAgent instance = new DockerAgent();
+    private static final DockerService instance = new DockerService();
 
-    public static DockerAgent instance() {
+    public static DockerService instance() {
         return instance;
     }
 
     private final DockerClient dockerClient;
 
-    private DockerAgent() {
+    private DockerService() {
         DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost("tcp://0.0.0.0:2374")
+                .withDockerHost(System.getenv("DOCKER_HOST"))
                 .build();
 
         DockerHttpClient dockerHttpClient = new ApacheDockerHttpClient.Builder()
@@ -67,7 +67,7 @@ public class DockerAgent {
 
     public List<Container> getContainers() {
         try {
-            return dockerClient.listContainersCmd().exec();
+            return dockerClient.listContainersCmd().withShowAll(true).exec();
         } catch (Exception e) {
             LOGGER.error("Error while trying to list docker containers", e);
             throw e;

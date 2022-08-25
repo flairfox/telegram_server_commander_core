@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.blodge.bserver.commander.menu.MenuMessageFactory;
 import ru.blodge.bserver.commander.telegram.CommanderBot;
+import ru.blodge.bserver.commander.telegram.menu.MenuFactory;
 
 public class CallbackQueryHandler implements UpdateHandler {
 
@@ -18,7 +18,7 @@ public class CallbackQueryHandler implements UpdateHandler {
         int messageId = update.getCallbackQuery().getMessage().getMessageId();
         String callbackData = update.getCallbackQuery().getData();
 
-        EditMessageText menuMessage = MenuMessageFactory.instance().buildMenu(callbackData);
+        EditMessageText menuMessage = MenuFactory.instance().buildMenu(callbackData);
         menuMessage.setChatId(chatId);
         menuMessage.setMessageId(messageId);
 

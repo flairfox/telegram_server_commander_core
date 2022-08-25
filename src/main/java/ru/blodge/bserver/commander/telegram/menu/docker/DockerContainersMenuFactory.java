@@ -1,16 +1,17 @@
-package ru.blodge.bserver.commander.menu.docker;
+package ru.blodge.bserver.commander.telegram.menu.docker;
 
 import com.github.dockerjava.api.model.Container;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import ru.blodge.bserver.commander.docker.DockerAgent;
-import ru.blodge.bserver.commander.menu.InlineKeyboardBuilder;
-import ru.blodge.bserver.commander.menu.MessageFactory;
+import ru.blodge.bserver.commander.services.DockerService;
+import ru.blodge.bserver.commander.telegram.menu.MessageFactory;
+import ru.blodge.bserver.commander.utils.InlineKeyboardBuilder;
 
-import static ru.blodge.bserver.commander.menu.MenuMessageFactory.DOCKER_CONTAINER_MENU_SELECTOR;
-import static ru.blodge.bserver.commander.menu.MenuMessageFactory.DOCKER_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.DOCKER_CONTAINERS_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.DOCKER_CONTAINER_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.DOCKER_MENU_SELECTOR;
 
-public class DockerContainersMessageFactory implements MessageFactory {
+public class DockerContainersMenuFactory implements MessageFactory {
 
     @Override
     public EditMessageText buildMenu(String callbackData) {
@@ -24,14 +25,15 @@ public class DockerContainersMessageFactory implements MessageFactory {
                 """);
 
         InlineKeyboardBuilder keyboardBuilder = new InlineKeyboardBuilder();
-        for (Container container : DockerAgent.instance().getContainers()) {
+        for (Container container : DockerService.instance().getContainers()) {
             keyboardBuilder
-                    .addButton(container.getNames()[0], buildContainerCallbackData(container))
+                    .addButton((container.getStatus().startsWith("Up") ? "\uD83D\uDFE2" : "\uD83D\uDD34") + "\t\t\t" + container.getNames()[0], buildContainerCallbackData(container))
                     .nextRow();
         }
 
         InlineKeyboardMarkup keyboardMarkup = keyboardBuilder
-                .addButton("Назад", DOCKER_MENU_SELECTOR)
+                .addButton("\uD83D\uDD04 Обновить", DOCKER_CONTAINERS_MENU_SELECTOR)
+                .addButton("◀️ Назад", DOCKER_MENU_SELECTOR)
                 .build();
 
         mainMenuMessage.setReplyMarkup(keyboardMarkup);
