@@ -40,7 +40,7 @@ public class DockerContainersMessageFactory implements MessageFactory {
     }
 
     private String buildContainerCallbackData(Container container) {
-        return DOCKER_CONTAINER_MENU_SELECTOR + "." + container.getId().substring(0, 12);
+        return DOCKER_CONTAINER_MENU_SELECTOR + "." + container.getId().substring(0, 12) + ".d";
     }
 
 }
