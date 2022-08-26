@@ -40,24 +40,10 @@ public class DockerContainerView implements MessageView {
 
         switch (action) {
             case "r?" -> displayContainerRestartConfirmation(callbackQuery, container);
-            case "r!" -> {
-                try {
-                    displayContainerRestart(callbackQuery, container);
-                } catch (NotFoundException e) {
-                    displayContainerNotFoundMessage(callbackQuery, containerId);
-                }
-            }
+            case "r!" -> displayContainerRestart(callbackQuery, container);
             default -> displayContainerInfo(callbackQuery, container);
         }
 
-    }
-
-    private void send(EditMessageText message) {
-        try {
-            CommanderBot.instance().execute(message);
-        } catch (TelegramApiException e) {
-            LOGGER.error("Error executing docker container menu message", e);
-        }
     }
 
     private void displayContainerNotFoundMessage(
@@ -156,6 +142,15 @@ public class DockerContainerView implements MessageView {
             DockerService.instance().restartContainer(container.id());
         } catch (NotFoundException e) {
             displayContainerNotFoundMessage(callbackQuery, container.id());
+        }
+    }
+
+    
+    private void send(EditMessageText message) {
+        try {
+            CommanderBot.instance().execute(message);
+        } catch (TelegramApiException e) {
+            LOGGER.error("Error executing docker container menu message", e);
         }
     }
 
