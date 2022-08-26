@@ -9,8 +9,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.blodge.bserver.commander.utils.InlineKeyboardBuilder;
 import ru.blodge.bserver.commander.telegram.CommanderBot;
 
-import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.DOCKER_MENU_SELECTOR;
-import static ru.blodge.bserver.commander.telegram.menu.MenuFactory.SYSTEM_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.SYSTEM_MENU_SELECTOR;
 
 public class MenuCommandHandler implements UpdateHandler {
 
