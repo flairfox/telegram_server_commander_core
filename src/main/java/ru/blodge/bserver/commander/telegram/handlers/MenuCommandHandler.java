@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.blodge.bserver.commander.utils.InlineKeyboardBuilder;
+import ru.blodge.bserver.commander.utils.builders.InlineKeyboardBuilder;
 import ru.blodge.bserver.commander.telegram.CommanderBot;
 
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_MENU_SELECTOR;

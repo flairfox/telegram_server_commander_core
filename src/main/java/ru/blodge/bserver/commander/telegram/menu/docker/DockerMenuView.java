@@ -8,8 +8,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.blodge.bserver.commander.telegram.CommanderBot;
 import ru.blodge.bserver.commander.telegram.menu.MessageView;
-import ru.blodge.bserver.commander.utils.EditMessageBuilder;
-import ru.blodge.bserver.commander.utils.InlineKeyboardBuilder;
+import ru.blodge.bserver.commander.utils.builders.EditMessageBuilder;
+import ru.blodge.bserver.commander.utils.builders.InlineKeyboardBuilder;
 
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAINERS_MENU_SELECTOR;
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_IMAGES_MENU_SELECTOR;
@@ -39,7 +39,7 @@ public class DockerMenuView implements MessageView {
                         """)
                 .withReplyMarkup(keyboardMarkup)
                 .build();
-        
+
         try {
             CommanderBot.instance().execute(dockerMenuMessage);
         } catch (TelegramApiException e) {

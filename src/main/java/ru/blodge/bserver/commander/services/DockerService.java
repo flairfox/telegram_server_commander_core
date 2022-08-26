@@ -2,12 +2,10 @@ package ru.blodge.bserver.commander.services;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerCmd;
-import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.ListContainersCmd;
 import com.github.dockerjava.api.command.ListImagesCmd;
 import com.github.dockerjava.api.command.RestartContainerCmd;
 import com.github.dockerjava.api.exception.NotFoundException;
-import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -16,8 +14,11 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.blodge.bserver.commander.mappers.DockerContainerMapper;
+import ru.blodge.bserver.commander.model.DockerContainer;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ru.blodge.bserver.commander.configuration.TelegramBotConfig.DOCKER_HOST;
 
@@ -32,6 +33,9 @@ public class DockerService {
     }
 
     private final DockerClient dockerClient;
+
+
+    private final DockerContainerMapper containerMapper = new DockerContainerMapper();
 
     private DockerService() {
         DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
@@ -57,15 +61,17 @@ public class DockerService {
         }
     }
 
-    public InspectContainerResponse getContainer(String containerId) throws NotFoundException {
+    public DockerContainer getContainer(String containerId) throws NotFoundException {
         try (InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(containerId)) {
-            return inspectContainerCmd.exec();
+            return containerMapper.toDockerContainer(inspectContainerCmd.exec());
         }
     }
 
-    public List<Container> getContainers() {
+    public List<DockerContainer> getContainers() {
         try (ListContainersCmd listContainersCmd = dockerClient.listContainersCmd().withShowAll(true)) {
-            return listContainersCmd.exec();
+            return listContainersCmd.exec().stream()
+                    .map(containerMapper::toDockerContainer)
+                    .collect(Collectors.toList());
         }
     }
 

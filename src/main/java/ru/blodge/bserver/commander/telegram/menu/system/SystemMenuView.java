@@ -8,8 +8,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.blodge.bserver.commander.telegram.CommanderBot;
 import ru.blodge.bserver.commander.telegram.menu.MessageView;
-import ru.blodge.bserver.commander.utils.EditMessageBuilder;
-import ru.blodge.bserver.commander.utils.InlineKeyboardBuilder;
+import ru.blodge.bserver.commander.utils.builders.EditMessageBuilder;
+import ru.blodge.bserver.commander.utils.builders.InlineKeyboardBuilder;
 
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.MAIN_MENU_SELECTOR;
 

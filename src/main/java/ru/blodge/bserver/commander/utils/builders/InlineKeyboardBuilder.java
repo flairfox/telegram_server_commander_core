@@ -1,4 +1,4 @@
-package ru.blodge.bserver.commander.utils;
+package ru.blodge.bserver.commander.utils.builders;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
