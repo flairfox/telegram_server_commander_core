@@ -1,7 +1,9 @@
 package ru.blodge.bserver.commander.telegram.menu.docker;
 
+import com.github.dockerjava.api.async.ResultCallbackTemplate;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -14,6 +16,9 @@ import ru.blodge.bserver.commander.telegram.CommanderBot;
 import ru.blodge.bserver.commander.telegram.menu.MessageView;
 import ru.blodge.bserver.commander.utils.builders.EditMessageBuilder;
 import ru.blodge.bserver.commander.utils.builders.InlineKeyboardBuilder;
+
+import java.io.Closeable;
+import java.io.IOException;
 
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAINERS_MENU_SELECTOR;
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAINER_MENU_SELECTOR;
@@ -65,9 +70,10 @@ public class DockerContainerView implements MessageView {
             """;
 
 
-    private static final String RESTART_ACTION = "r";
-    private static final String LAUNCH_ACTION = "l";
-    private static final String STOP_ACTION = "s";
+    private static final String RESTART_ACTION = "1";
+    private static final String LAUNCH_ACTION = "2";
+    private static final String STOP_ACTION = "3";
+    private static final String LOGS_ACTION = "4";
 
     @Override
     public void display(CallbackQuery callbackQuery) {
@@ -153,6 +159,19 @@ public class DockerContainerView implements MessageView {
             // ============================================================================== //
 
             // Общая информация о контейнере ================================================ //
+            case LOGS_ACTION -> {
+
+                try (LogsResultCallback logsResultCallback = new LogsResultCallback(containerId)) {
+                    DockerService.instance().getLogs(container.id(), logsResultCallback);
+                } catch (NotFoundException e) {
+                    displayContainerNotFoundMessage(callbackQuery, container.id());
+                } catch (IOException e) {
+                    // todo
+                }
+            }
+            // ============================================================================== //
+
+            // Общая информация о контейнере ================================================ //
             default -> displayContainerInfo(callbackQuery, container);
             // ============================================================================== //
         }
@@ -165,6 +184,9 @@ public class DockerContainerView implements MessageView {
 
         InlineKeyboardBuilder keyboardBuilder = new InlineKeyboardBuilder();
         if (container.status().isRunning()) {
+            keyboardBuilder
+                    .addButton("Логи", buildContainerCallbackData(container.id(), LOGS_ACTION))
+                    .nextRow();
             keyboardBuilder
                     .addButton("Перезапустить", buildContainerCallbackData(container.id(), RESTART_ACTION + "?"))
                     .nextRow();
@@ -210,7 +232,7 @@ public class DockerContainerView implements MessageView {
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
                 .addButton("Да", buildContainerCallbackData(container.id(), action + "!"))
-                .addButton("Отмена", buildContainerCallbackData(container.id(), "d"))
+                .addButton("Отмена", buildContainerCallbackData(container.id(), "0"))
                 .build();
 
         EditMessageText restartConfirmation = new EditMessageBuilder(callbackQuery)
@@ -227,7 +249,7 @@ public class DockerContainerView implements MessageView {
             String text) {
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
-                .addButton("Назад", buildContainerCallbackData(container.id(), "d"))
+                .addButton("Назад", buildContainerCallbackData(container.id(), "0"))
                 .build();
 
         EditMessageText containerActionMessage = new EditMessageBuilder(callbackQuery)
@@ -264,7 +286,7 @@ public class DockerContainerView implements MessageView {
             String text) {
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
-                .addButton(BACK_EMOJI + " Назад", buildContainerCallbackData(containerId, "d"))
+                .addButton(BACK_EMOJI + " Назад", buildContainerCallbackData(containerId, "0"))
                 .build();
 
         EditMessageText containerNotFoundMessage = new EditMessageBuilder(callbackQuery)
@@ -292,6 +314,38 @@ public class DockerContainerView implements MessageView {
         }
 
         return sb.toString();
+    }
+
+    private static class LogsResultCallback extends ResultCallbackTemplate<LogsResultCallback, Frame> {
+
+        private final String containerId;
+
+        public LogsResultCallback(String containerId) {
+            this.containerId = containerId;
+        }
+
+        public String getContainerId() {
+            return containerId;
+        }
+
+        @Override
+        public void onStart(Closeable stream) {
+            super.onStart(stream);
+            LOGGER.debug("Started to obtain logs from container with ID {}", containerId);
+            // todo
+        }
+
+        @Override
+        public void onNext(Frame object) {
+            // todo
+        }
+
+        @Override
+        public void onComplete() {
+            super.onComplete();
+            LOGGER.debug("Finished to obtain logs from container with ID {}", containerId);
+            // todo
+        }
     }
 
 }

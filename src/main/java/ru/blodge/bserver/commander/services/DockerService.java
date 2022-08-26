@@ -1,13 +1,16 @@
 package ru.blodge.bserver.commander.services;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.InspectContainerCmd;
 import com.github.dockerjava.api.command.ListContainersCmd;
+import com.github.dockerjava.api.command.LogContainerCmd;
 import com.github.dockerjava.api.command.RestartContainerCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
 import com.github.dockerjava.api.command.StopContainerCmd;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
@@ -75,6 +78,19 @@ public class DockerService {
         LOGGER.debug("Inspecting container with ID {}", containerId);
         try (InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(containerId)) {
             return containerMapper.toDockerContainer(inspectContainerCmd.exec());
+        }
+    }
+
+    public void getLogs(String containerId, ResultCallback<Frame> resultCallback) throws NotFoundException {
+        int currentTs = Math.toIntExact(System.currentTimeMillis() / 1000L);
+        try (LogContainerCmd logContainerCmd = dockerClient
+                .logContainerCmd(containerId)
+                .withContainerId(containerId)
+                .withStdOut(true)
+                .withStdErr(true)
+                .withSince(currentTs - 86400)) {
+
+            logContainerCmd.exec(resultCallback);
         }
     }
 
