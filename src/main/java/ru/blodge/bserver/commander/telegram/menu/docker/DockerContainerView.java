@@ -53,6 +53,17 @@ public class DockerContainerView implements MessageView {
             `%s` запускается!
             """;
 
+    private static final String ALREADY_STOPPED_TEXT = """
+            *Docker-контейнер с ID*
+            `%s`
+            *уже остановлен!*
+            """;
+    private static final String ALREADY_LAUNCHED_TEXT = """
+            *Docker-контейнер с ID*
+            `%s`
+            *уже запущен!*
+            """;
+
 
     private static final String RESTART_ACTION = "r";
     private static final String LAUNCH_ACTION = "l";
@@ -111,7 +122,11 @@ public class DockerContainerView implements MessageView {
                 } catch (NotFoundException e) {
                     displayContainerNotFoundMessage(callbackQuery, container.id());
                 } catch (NotModifiedException e) {
-                    LOGGER.error("Trying to stop container with ID {}, that already stopped", containerId);
+                    LOGGER.error("Trying to stop container with ID {}, that already stopped", container.id());
+                    displayContainerNotModifiedMessage(
+                            callbackQuery,
+                            container.id(),
+                            ALREADY_STOPPED_TEXT.formatted(container.id()));
                 }
             }
             // ============================================================================== //
@@ -128,7 +143,11 @@ public class DockerContainerView implements MessageView {
                 } catch (NotFoundException e) {
                     displayContainerNotFoundMessage(callbackQuery, container.id());
                 } catch (NotModifiedException e) {
-                    LOGGER.error("Trying to start container with ID {}, that already started", containerId);
+                    LOGGER.error("Trying to start container with ID {}, that already started", container.id());
+                    displayContainerNotModifiedMessage(
+                            callbackQuery,
+                            container.id(),
+                            ALREADY_LAUNCHED_TEXT.formatted(container.id()));
                 }
             }
             // ============================================================================== //
@@ -233,6 +252,23 @@ public class DockerContainerView implements MessageView {
                         `%s`
                         *не найден!*
                         """.formatted(containerId))
+                .withReplyMarkup(keyboardMarkup)
+                .build();
+
+        send(containerNotFoundMessage);
+    }
+
+    private void displayContainerNotModifiedMessage(
+            CallbackQuery callbackQuery,
+            String containerId,
+            String text) {
+
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
+                .addButton(BACK_EMOJI + " Назад", buildContainerCallbackData(containerId, "d"))
+                .build();
+
+        EditMessageText containerNotFoundMessage = new EditMessageBuilder(callbackQuery)
+                .withMessageText(text)
                 .withReplyMarkup(keyboardMarkup)
                 .build();
 
