@@ -17,17 +17,22 @@ public class TimeUtils {
 
     public static String formatDuration(Duration duration) {
         long days = duration.toDays();
-        duration = duration.minusDays(days);
+        if (days != 0) {
+            return days + " дн.";
+        }
+
         long hours = duration.toHours();
-        duration = duration.minusHours(hours);
+        if (hours != 0) {
+            return hours + " час.";
+        }
+
         long minutes = duration.toMinutes();
-        duration = duration.minusMinutes(minutes);
+        if (minutes != 0) {
+            return minutes + " мин.";
+        }
+
         long seconds = duration.getSeconds();
-        return
-                (days == 0 ? "" : days + " д. ") +
-                        (hours == 0 ? "" : hours + " ч. ") +
-                        (minutes == 0 ? "" : minutes + " м. ") +
-                        (seconds == 0 ? "" : seconds + " с.");
+        return seconds + " сек.";
     }
 
 }
