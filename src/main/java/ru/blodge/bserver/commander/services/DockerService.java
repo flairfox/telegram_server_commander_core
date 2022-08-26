@@ -51,42 +51,35 @@ public class DockerService {
 
 
     public void startContainer(String containerId) throws NotFoundException, NotModifiedException {
+        LOGGER.debug("Starting container with ID {}", containerId);
         try (StartContainerCmd startContainerCmd = dockerClient.startContainerCmd(containerId)) {
             startContainerCmd.exec();
-        } catch (NotFoundException | NotModifiedException e) {
-            LOGGER.error("Error while starting container with ID {}.", containerId, e);
-            throw e;
         }
     }
 
     public void stopContainer(String containerId) throws NotFoundException, NotModifiedException {
+        LOGGER.debug("Stopping container with ID {}", containerId);
         try (StopContainerCmd stopContainerCmd = dockerClient.stopContainerCmd(containerId)) {
             stopContainerCmd.exec();
-        } catch (NotFoundException | NotModifiedException e) {
-            LOGGER.error("Error while stopping container with ID {}.", containerId, e);
-            throw e;
         }
     }
 
     public void restartContainer(String containerId) throws NotFoundException {
+        LOGGER.debug("Restarting container with ID {}", containerId);
         try (RestartContainerCmd restartContainerCmd = dockerClient.restartContainerCmd(containerId)) {
             restartContainerCmd.exec();
-        } catch (NotFoundException e) {
-            LOGGER.error("Error while restarting container with ID {}.", containerId, e);
-            throw e;
         }
     }
 
     public DockerContainer getContainer(String containerId) throws NotFoundException {
+        LOGGER.debug("Inspecting container with ID {}", containerId);
         try (InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(containerId)) {
             return containerMapper.toDockerContainer(inspectContainerCmd.exec());
-        } catch (NotFoundException e) {
-            LOGGER.error("Container with ID {} not found.", containerId, e);
-            throw e;
         }
     }
 
     public List<DockerContainer> getContainers() {
+        LOGGER.debug("Listing all containers");
         try (ListContainersCmd listContainersCmd = dockerClient.listContainersCmd().withShowAll(true)) {
             return listContainersCmd.exec().stream()
                     .map(containerMapper::toDockerContainer)
