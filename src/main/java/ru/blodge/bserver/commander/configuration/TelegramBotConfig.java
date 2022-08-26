@@ -9,4 +9,6 @@ public class TelegramBotConfig {
 
     public static final String ACCESS_DENIED_FILE = "media/access_denied.mp4";
 
+    private TelegramBotConfig() {}
+
 }

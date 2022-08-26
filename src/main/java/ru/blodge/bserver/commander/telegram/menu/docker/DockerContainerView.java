@@ -30,7 +30,13 @@ public class DockerContainerView implements MessageView {
         String containerId = callbackDataArr[1];
         String action = callbackDataArr[2];
 
-        DockerContainer container = DockerService.instance().getContainer(containerId);
+        DockerContainer container;
+        try {
+            container = DockerService.instance().getContainer(containerId);
+        } catch (NotFoundException e) {
+            displayContainerNotFoundMessage(callbackQuery, containerId);
+            return;
+        }
 
         switch (action) {
             case "r?" -> displayContainerRestartConfirmation(callbackQuery, container);
@@ -38,7 +44,7 @@ public class DockerContainerView implements MessageView {
                 try {
                     displayContainerRestart(callbackQuery, container);
                 } catch (NotFoundException e) {
-                    displayContainerNotFoundMessage(callbackQuery);
+                    displayContainerNotFoundMessage(callbackQuery, containerId);
                 }
             }
             default -> displayContainerInfo(callbackQuery, container);
@@ -55,7 +61,8 @@ public class DockerContainerView implements MessageView {
     }
 
     private void displayContainerNotFoundMessage(
-            CallbackQuery callbackQuery) {
+            CallbackQuery callbackQuery,
+            String containerId) {
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
                 .addButton("ОК", DOCKER_CONTAINERS_MENU_SELECTOR)
@@ -63,8 +70,8 @@ public class DockerContainerView implements MessageView {
 
         EditMessageText containerNotFoundMessage = new EditMessageBuilder(callbackQuery)
                 .withMessageText("""
-                        *Docker-контейнер с таким ID не найден!*
-                        """)
+                        *Docker-контейнер с ID `%s` не найден!*
+                        """.formatted(containerId))
                 .withReplyMarkup(keyboardMarkup)
                 .build();
 
@@ -144,7 +151,12 @@ public class DockerContainerView implements MessageView {
                 .build();
 
         send(containerIsRestartingMenuMessage);
-        DockerService.instance().restartContainer(container.id());
+
+        try {
+            DockerService.instance().restartContainer(container.id());
+        } catch (NotFoundException e) {
+            displayContainerNotFoundMessage(callbackQuery, container.id());
+        }
     }
 
     private String buildContainerCallbackData(String containerId, String action) {
