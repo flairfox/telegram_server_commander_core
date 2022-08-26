@@ -30,7 +30,7 @@ public class MainMenuView implements MessageView {
                 .withMessageText("""
                         *Главное меню*
                                         
-                        Это главное меню Бобрового Сервера, здесь можно узнать о:
+                        Это главное меню твоего Сервера, здесь можно узнать о:
                         """)
                 .withReplyMarkup(keyboardMarkup)
                 .build();
