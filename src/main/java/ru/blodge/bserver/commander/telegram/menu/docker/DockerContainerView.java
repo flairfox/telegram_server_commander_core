@@ -158,7 +158,7 @@ public class DockerContainerView implements MessageView {
             }
             // ============================================================================== //
 
-            // Общая информация о контейнере ================================================ //
+            // Сбор логов в контейнере ====================================================== //
             case LOGS_ACTION -> {
 
                 try (LogsResultCallback logsResultCallback = new LogsResultCallback(containerId)) {
