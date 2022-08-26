@@ -70,7 +70,7 @@ public class DockerContainerView implements MessageView {
 
         EditMessageText containerNotFoundMessage = new EditMessageBuilder(callbackQuery)
                 .withMessageText("""
-                        *Docker-контейнер с ID `%s` не найден!*
+                        *Docker-контейнер с ID* `%s` *не найден!*
                         """.formatted(containerId))
                 .withReplyMarkup(keyboardMarkup)
                 .build();
