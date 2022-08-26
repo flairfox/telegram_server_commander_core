@@ -23,6 +23,40 @@ public class DockerContainerView implements MessageView {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainerView.class);
 
+    private static final String RESTART_CONFIRMATION_TEXT = """
+            *Docker-контейнер*
+            `%s`
+            *будет перезапущен!*
+                            
+            Вы действительно хотите продолжить?
+            """;
+    private static final String RESTART_INFO_TEXT = """
+            *Docker-контейнер*
+            `%s` перезапускается!
+            """;
+
+    private static final String STOP_CONFIRMATION_TEXT = """
+            *Docker-контейнер*
+            `%s`
+            *будет остановлен!*
+                            
+            Вы действительно хотите продолжить?
+            """;
+    private static final String STOP_INFO_TEXT = """
+            *Docker-контейнер*
+            `%s` останавливается!
+            """;
+
+    private static final String LAUNCH_INFO_TEXT = """
+            *Docker-контейнер*
+            `%s` запускается!
+            """;
+
+
+    private static final String RESTART_ACTION = "r";
+    private static final String LAUNCH_ACTION = "l";
+    private static final String STOP_ACTION = "s";
+
     @Override
     public void display(CallbackQuery callbackQuery) {
 
@@ -39,41 +73,92 @@ public class DockerContainerView implements MessageView {
         }
 
         switch (action) {
-            case "r?" -> displayContainerRestartConfirmation(callbackQuery, container);
-            case "r!" -> displayContainerRestart(callbackQuery, container);
+            // Перезапуск контейнера ======================================================== //
+            case RESTART_ACTION + "?" -> displayContainerActionConfirmation(
+                    callbackQuery,
+                    container,
+                    RESTART_ACTION,
+                    RESTART_CONFIRMATION_TEXT.formatted(container.names()));
+            case RESTART_ACTION + "!" -> {
+                displayContainerActionMessage(
+                        callbackQuery,
+                        container,
+                        RESTART_INFO_TEXT.formatted(container.names()));
+
+                try {
+                    DockerService.instance().restartContainer(container.id());
+                } catch (NotFoundException e) {
+                    displayContainerNotFoundMessage(callbackQuery, container.id());
+                }
+            }
+            // ============================================================================== //
+
+            // Остановка контейнера ========================================================= //
+            case STOP_ACTION + "?" -> displayContainerActionConfirmation(
+                    callbackQuery,
+                    container,
+                    STOP_ACTION,
+                    STOP_CONFIRMATION_TEXT.formatted(container.names()));
+            case STOP_ACTION + "!" -> {
+                displayContainerActionMessage(
+                        callbackQuery,
+                        container,
+                        STOP_INFO_TEXT.formatted(container.names()));
+
+                try {
+                    DockerService.instance().stopContainer(container.id());
+                } catch (NotFoundException e) {
+                    displayContainerNotFoundMessage(callbackQuery, container.id());
+                }
+            }
+            // ============================================================================== //
+
+            // Запуск контейнера ============================================================ //
+            case LAUNCH_ACTION -> {
+                displayContainerActionMessage(
+                        callbackQuery,
+                        container,
+                        LAUNCH_INFO_TEXT.formatted(container.names()));
+
+                try {
+                    DockerService.instance().startContainer(container.id());
+                } catch (NotFoundException e) {
+                    displayContainerNotFoundMessage(callbackQuery, container.id());
+                }
+            }
+            // ============================================================================== //
+
+            // Общая информация о контейнере ================================================ //
             default -> displayContainerInfo(callbackQuery, container);
+            // ============================================================================== //
         }
 
-    }
-
-    private void displayContainerNotFoundMessage(
-            CallbackQuery callbackQuery,
-            String containerId) {
-
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
-                .addButton("ОК", DOCKER_CONTAINERS_MENU_SELECTOR)
-                .build();
-
-        EditMessageText containerNotFoundMessage = new EditMessageBuilder(callbackQuery)
-                .withMessageText("""
-                        *Docker-контейнер с ID* `%s` *не найден!*
-                        """.formatted(containerId))
-                .withReplyMarkup(keyboardMarkup)
-                .build();
-
-        send(containerNotFoundMessage);
     }
 
     private void displayContainerInfo(
             CallbackQuery callbackQuery,
             DockerContainer container) {
 
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
-                .addButton("Перезапустить", buildContainerCallbackData(container.id(), "r?"))
-                .nextRow()
+        InlineKeyboardBuilder keyboardBuilder = new InlineKeyboardBuilder();
+        if (container.status().isRunning()) {
+            keyboardBuilder
+                    .addButton("Перезапустить", buildContainerCallbackData(container.id(), RESTART_ACTION + "?"))
+                    .nextRow();
+            keyboardBuilder
+                    .addButton("Остановить", buildContainerCallbackData(container.id(), STOP_ACTION + "?"))
+                    .nextRow();
+        } else {
+            keyboardBuilder
+                    .addButton("Запустить", buildContainerCallbackData(container.id(), LAUNCH_ACTION))
+                    .nextRow();
+        }
+
+
+        keyboardBuilder
                 .addButton(REFRESH_EMOJI + " Обновить", buildContainerCallbackData(container.id(), "d"))
-                .addButton(BACK_EMOJI + " Назад", DOCKER_CONTAINERS_MENU_SELECTOR)
-                .build();
+                .addButton(BACK_EMOJI + " Назад", DOCKER_CONTAINERS_MENU_SELECTOR);
+
+        InlineKeyboardMarkup keyboardMarkup = keyboardBuilder.build();
 
         EditMessageText containerInfo = new EditMessageBuilder(callbackQuery)
                 .withMessageText("""
@@ -93,59 +178,62 @@ public class DockerContainerView implements MessageView {
         send(containerInfo);
     }
 
-    private void displayContainerRestartConfirmation(
+    private void displayContainerActionConfirmation(
             CallbackQuery callbackQuery,
-            DockerContainer container) {
+            DockerContainer container,
+            String action,
+            String text) {
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
-                .addButton("Да", buildContainerCallbackData(container.id(), "r!"))
+                .addButton("Да", buildContainerCallbackData(container.id(), action + "!"))
                 .addButton("Отмена", buildContainerCallbackData(container.id(), "d"))
                 .build();
 
         EditMessageText restartConfirmation = new EditMessageBuilder(callbackQuery)
-                .withMessageText("""
-                        *Docker-контейнер*
-                        `%s`
-                        *будет перезапущен!*
-                                        
-                        Вы действительно хотите продолжить?
-                        """.formatted(
-                        container.names()
-                ))
+                .withMessageText(text)
                 .withReplyMarkup(keyboardMarkup)
                 .build();
 
         send(restartConfirmation);
     }
 
-    private void displayContainerRestart(
+    private void displayContainerActionMessage(
             CallbackQuery callbackQuery,
-            DockerContainer container) {
+            DockerContainer container,
+            String text) {
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
                 .addButton("Назад", buildContainerCallbackData(container.id(), "d"))
                 .build();
 
-        EditMessageText containerIsRestartingMenuMessage = new EditMessageBuilder(callbackQuery)
-                .withMessageText("""
-                        *Docker-контейнер*
-                        `%s` перезапускается!
-                        """.formatted(
-                        container.names()
-                ))
+        EditMessageText containerActionMessage = new EditMessageBuilder(callbackQuery)
+                .withMessageText(text)
                 .withReplyMarkup(keyboardMarkup)
                 .build();
 
-        send(containerIsRestartingMenuMessage);
-
-        try {
-            DockerService.instance().restartContainer(container.id());
-        } catch (NotFoundException e) {
-            displayContainerNotFoundMessage(callbackQuery, container.id());
-        }
+        send(containerActionMessage);
     }
 
-    
+    private void displayContainerNotFoundMessage(
+            CallbackQuery callbackQuery,
+            String containerId) {
+
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
+                .addButton(BACK_EMOJI + " К списку контейнеров...", DOCKER_CONTAINERS_MENU_SELECTOR)
+                .build();
+
+        EditMessageText containerNotFoundMessage = new EditMessageBuilder(callbackQuery)
+                .withMessageText("""
+                        *Docker-контейнер с ID*
+                        `%s`
+                        *не найден!*
+                        """.formatted(containerId))
+                .withReplyMarkup(keyboardMarkup)
+                .build();
+
+        send(containerNotFoundMessage);
+    }
+
     private void send(EditMessageText message) {
         try {
             CommanderBot.instance().execute(message);

@@ -16,13 +16,16 @@ import static ru.blodge.bserver.commander.utils.TimeUtils.getDuration;
 public class DockerContainerMapper {
 
     public DockerContainer toDockerContainer(Container container) {
+        boolean isRunning;
         String statusEmoji;
         String statusCaption;
 
         if (container.getStatus().startsWith("Up")) {
+            isRunning = true;
             statusEmoji = GREEN_CIRCLE_EMOJI;
             statusCaption = "Запущен";
         } else {
+            isRunning = false;
             statusEmoji = RED_CIRCLE_EMOJI;
             statusCaption = "Остановлен";
         }
@@ -35,6 +38,7 @@ public class DockerContainerMapper {
                 String.join(", ", names),
                 container.getId().substring(0, 12),
                 new DockerContainerStatus(
+                        isRunning,
                         statusEmoji,
                         statusCaption,
                         null
@@ -43,6 +47,7 @@ public class DockerContainerMapper {
     }
 
     public DockerContainer toDockerContainer(InspectContainerResponse container) {
+        boolean isRunning;
         String statusEmoji;
         String statusCaption;
         String statusDuration;
@@ -50,10 +55,12 @@ public class DockerContainerMapper {
         InspectContainerResponse.ContainerState state = container.getState();
 
         if ("running".equals(state.getStatus())) {
+            isRunning = true;
             statusEmoji = GREEN_CIRCLE_EMOJI;
             statusCaption = "Запущен";
             statusDuration = formatDuration(getDuration(state.getStartedAt()));
         } else {
+            isRunning = false;
             statusEmoji = RED_CIRCLE_EMOJI;
             statusCaption = "Остановлен";
             statusDuration = formatDuration(getDuration(state.getFinishedAt()));
@@ -64,6 +71,7 @@ public class DockerContainerMapper {
                 name,
                 container.getId().substring(0, 12),
                 new DockerContainerStatus(
+                        isRunning,
                         statusEmoji,
                         statusCaption,
                         statusDuration

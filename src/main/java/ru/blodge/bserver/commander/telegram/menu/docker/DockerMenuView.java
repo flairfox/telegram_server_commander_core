@@ -28,7 +28,7 @@ public class DockerMenuView implements MessageView {
                 .nextRow()
                 .addButton("Docker-образы", DOCKER_IMAGES_MENU_SELECTOR)
                 .nextRow()
-                .addButton(BACK_EMOJI + "Назад", MAIN_MENU_SELECTOR)
+                .addButton(BACK_EMOJI + " Назад", MAIN_MENU_SELECTOR)
                 .build();
 
         EditMessageText dockerMenuMessage = new EditMessageBuilder(callbackQuery)
