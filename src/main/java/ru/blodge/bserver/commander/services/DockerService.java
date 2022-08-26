@@ -18,7 +18,6 @@ import ru.blodge.bserver.commander.mappers.DockerContainerMapper;
 import ru.blodge.bserver.commander.model.DockerContainer;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.blodge.bserver.commander.configuration.TelegramBotConfig.DOCKER_HOST;
 
@@ -71,7 +70,7 @@ public class DockerService {
         try (ListContainersCmd listContainersCmd = dockerClient.listContainersCmd().withShowAll(true)) {
             return listContainersCmd.exec().stream()
                     .map(containerMapper::toDockerContainer)
-                    .collect(Collectors.toList());
+                    .toList();
         }
     }
 
