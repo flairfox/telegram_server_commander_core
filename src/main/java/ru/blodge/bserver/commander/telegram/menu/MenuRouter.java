@@ -31,13 +31,17 @@ public class MenuRouter {
             DOCKER_CONTAINER_MENU_SELECTOR, new DockerContainerView()
     );
 
-    private MenuRouter() {
-    }
+    private MenuRouter() {}
 
     public static void route(CallbackQuery callbackQuery) {
+        LOGGER.debug("Received callback query with data {}.", callbackQuery.getData());
         String viewSelector = callbackQuery.getData().split("\\.")[0];
-        viewSelectorMap.get(viewSelector)
-                .display(callbackQuery);
+        MessageView messageView = viewSelectorMap.get(viewSelector);
+        if (messageView == null) {
+            LOGGER.error("No MessageView is available for selector {}", viewSelector);
+        } else {
+            messageView.display(callbackQuery);
+        }
     }
 
 }

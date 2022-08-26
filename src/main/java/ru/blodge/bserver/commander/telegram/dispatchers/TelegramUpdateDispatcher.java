@@ -19,6 +19,7 @@ public class TelegramUpdateDispatcher implements UpdateDispatcher {
     private final UpdateHandler callbackQueryHandler = new CallbackQueryHandler();
 
     public void dispatch(Update update) {
+        LOGGER.debug("Received update.");
         if (update.hasMessage()) {
 
             // Сообщение пришло НЕ от администратора
@@ -33,6 +34,7 @@ public class TelegramUpdateDispatcher implements UpdateDispatcher {
                 return;
             }
 
+            // Сообщение содержит CallbackQuery
         } else if (update.hasCallbackQuery()) {
             callbackQueryHandler.handle(update);
         }

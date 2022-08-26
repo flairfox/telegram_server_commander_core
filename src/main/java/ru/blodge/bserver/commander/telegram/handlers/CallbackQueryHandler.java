@@ -12,6 +12,7 @@ public class CallbackQueryHandler implements UpdateHandler {
 
     @Override
     public void handle(Update update) {
+        LOGGER.debug("Received update, passing it to router...");
         route(update.getCallbackQuery());
     }
 
