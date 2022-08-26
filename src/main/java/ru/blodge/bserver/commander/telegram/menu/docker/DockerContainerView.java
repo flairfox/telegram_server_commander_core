@@ -1,6 +1,7 @@
 package ru.blodge.bserver.commander.telegram.menu.docker;
 
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.exception.NotModifiedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -109,6 +110,8 @@ public class DockerContainerView implements MessageView {
                     DockerService.instance().stopContainer(container.id());
                 } catch (NotFoundException e) {
                     displayContainerNotFoundMessage(callbackQuery, container.id());
+                } catch (NotModifiedException e) {
+                    LOGGER.error("Trying to stop container with ID {}, that already stopped", containerId);
                 }
             }
             // ============================================================================== //
@@ -124,6 +127,8 @@ public class DockerContainerView implements MessageView {
                     DockerService.instance().startContainer(container.id());
                 } catch (NotFoundException e) {
                     displayContainerNotFoundMessage(callbackQuery, container.id());
+                } catch (NotModifiedException e) {
+                    LOGGER.error("Trying to start container with ID {}, that already started", containerId);
                 }
             }
             // ============================================================================== //
