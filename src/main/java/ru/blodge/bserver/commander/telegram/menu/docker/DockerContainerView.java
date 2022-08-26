@@ -120,7 +120,9 @@ public class DockerContainerView implements MessageView {
 
         EditMessageText restartConfirmation = new EditMessageBuilder(callbackQuery)
                 .withMessageText("""
-                        *Docker-контейнер %s будет перезапущен!*
+                        *Docker-контейнер*
+                        `%s`
+                        *будет перезапущен!*
                                         
                         Вы действительно хотите продолжить?
                         """.formatted(
@@ -142,7 +144,8 @@ public class DockerContainerView implements MessageView {
 
         EditMessageText containerIsRestartingMenuMessage = new EditMessageBuilder(callbackQuery)
                 .withMessageText("""
-                        *Docker-контейнер %s перезапускается!*
+                        *Docker-контейнер*
+                        `%s` перезапускается!
                         """.formatted(
                         containerResponse.getName()
                 ))
