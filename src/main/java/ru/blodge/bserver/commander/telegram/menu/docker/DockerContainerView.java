@@ -6,8 +6,13 @@ import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.blodge.bserver.commander.model.DockerContainer;
@@ -17,8 +22,14 @@ import ru.blodge.bserver.commander.telegram.menu.MessageView;
 import ru.blodge.bserver.commander.utils.builders.EditMessageBuilder;
 import ru.blodge.bserver.commander.utils.builders.InlineKeyboardBuilder;
 
+import java.io.BufferedWriter;
 import java.io.Closeable;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAINERS_MENU_SELECTOR;
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAINER_MENU_SELECTOR;
@@ -77,6 +88,8 @@ public class DockerContainerView implements MessageView {
 
     @Override
     public void display(CallbackQuery callbackQuery) {
+
+        long chatId = callbackQuery.getMessage().getChatId();
 
         String[] callbackDataArr = callbackQuery.getData().split("\\.");
         String containerId = callbackDataArr[1];
@@ -161,7 +174,7 @@ public class DockerContainerView implements MessageView {
             // Сбор логов в контейнере ====================================================== //
             case LOGS_ACTION -> {
 
-                try (LogsResultCallback logsResultCallback = new LogsResultCallback(containerId)) {
+                try (LogsResultCallback logsResultCallback = new LogsResultCallback(chatId, container)) {
                     DockerService.instance().getLogs(container.id(), logsResultCallback);
                 } catch (NotFoundException e) {
                     displayContainerNotFoundMessage(callbackQuery, container.id());
@@ -318,33 +331,116 @@ public class DockerContainerView implements MessageView {
 
     private static class LogsResultCallback extends ResultCallbackTemplate<LogsResultCallback, Frame> {
 
-        private final String containerId;
+        private final long chatId;
+        private final DockerContainer container;
 
-        public LogsResultCallback(String containerId) {
-            this.containerId = containerId;
-        }
+        private int initialMessageId;
+        private Path tempFilePath;
+        private BufferedWriter bufferedWriterWriter;
 
-        public String getContainerId() {
-            return containerId;
+        public LogsResultCallback(
+                long chatId,
+                DockerContainer container) {
+            this.chatId = chatId;
+            this.container = container;
         }
 
         @Override
         public void onStart(Closeable stream) {
             super.onStart(stream);
-            LOGGER.debug("Started to obtain logs from container with ID {}", containerId);
-            // todo
+            LOGGER.debug("Started to obtain logs from container {} with ID {}", container.names(), container.id());
+            tempFilePath = Paths.get(System.getProperty("java.io.tmpdir"), "/", UUID.randomUUID().toString());
+            try {
+                FileWriter fileWriter = new FileWriter(tempFilePath.toFile());
+                bufferedWriterWriter = new BufferedWriter(fileWriter);
+
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
+                sendMessage.setParseMode("markdown");
+                sendMessage.setText("""
+                        *Docker-контейнер*
+                        `%s`
+                                                
+                        Логи контейнера собираются и настаиваются, наберись терпения!
+                        """.formatted(container.names()));
+
+                Message initialMessage = CommanderBot.instance().execute(sendMessage);
+                initialMessageId = initialMessage.getMessageId();
+            } catch (IOException e) {
+                LOGGER.error("There was an error while creating temp file {}", tempFilePath, e);
+            } catch (TelegramApiException e) {
+
+            }
         }
 
         @Override
         public void onNext(Frame object) {
-            // todo
+            try {
+                bufferedWriterWriter.write(object.toString());
+                bufferedWriterWriter.newLine();
+            } catch (IOException e) {
+
+            }
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            super.onError(throwable);
+            EditMessageText editMessageText = new EditMessageText();
+            editMessageText.setChatId(chatId);
+            editMessageText.setMessageId(initialMessageId);
+            editMessageText.setParseMode("markdown");
+            editMessageText.setText("""
+                    *Docker-контейнер*
+                    `%s`
+                                           
+                    Ошибочка вышла :-(. Логов не будет, жлектричество кончилось
+                    """.formatted(container.names()));
+
+            try {
+                bufferedWriterWriter.close();
+                CommanderBot.instance().execute(editMessageText);
+            } catch (TelegramApiException e) {
+
+            } catch (IOException e) {
+
+            }
         }
 
         @Override
         public void onComplete() {
             super.onComplete();
-            LOGGER.debug("Finished to obtain logs from container with ID {}", containerId);
-            // todo
+            LOGGER.debug("Finished to obtain logs from container {} with ID {}", container.names(), container.id());
+            try {
+                bufferedWriterWriter.close();
+
+                InputFile logsFile = new InputFile();
+                logsFile.setMedia(tempFilePath.toFile(), "logs.txt");
+
+                DeleteMessage deleteMessage = new DeleteMessage();
+                deleteMessage.setChatId(chatId);
+                deleteMessage.setMessageId(initialMessageId);
+                CommanderBot.instance().execute(deleteMessage);
+
+                SendDocument sendDocument = new SendDocument();
+                sendDocument.setChatId(chatId);
+                sendDocument.setParseMode("markdown");
+                sendDocument.setCaption("""
+                        *Docker-контейнер*
+                        `%s`
+                                                
+                        А вот и логи!
+                        """.formatted(container.names()));
+                sendDocument.setDocument(logsFile);
+                CommanderBot.instance().execute(sendDocument);
+
+                Files.delete(tempFilePath);
+
+            } catch (IOException e) {
+
+            } catch (TelegramApiException e) {
+
+            }
         }
     }
 
