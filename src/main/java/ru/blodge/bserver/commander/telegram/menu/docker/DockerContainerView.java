@@ -71,7 +71,7 @@ public class DockerContainerView implements MessageView {
             *Docker-контейнер*
             `%s`
                         
-            Собираю логи контейнера, как только закончу - отправлю отдельным сообщением!
+            Собираю логи контейнера. По завершении отправлю отдельным сообщением...
             """;
 
     private static final String ALREADY_STOPPED_TEXT = """
@@ -289,7 +289,9 @@ public class DockerContainerView implements MessageView {
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
                 .addButton("За сутки", buildContainerCallbackData(container.id(), LOGS_ACTION + "d"))
+                .nextRow()
                 .addButton("За неделю", buildContainerCallbackData(container.id(), LOGS_ACTION + "w"))
+                .nextRow()
                 .addButton("За месяц", buildContainerCallbackData(container.id(), LOGS_ACTION + "m"))
                 .nextRow()
                 .addButton(BACK_EMOJI + " Назад", buildContainerCallbackData(container.id(), "0"))
