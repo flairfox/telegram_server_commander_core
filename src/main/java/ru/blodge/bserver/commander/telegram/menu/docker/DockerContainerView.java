@@ -506,5 +506,6 @@ public class DockerContainerView implements MessageView {
             }
         }
     }
+    
 
 }
