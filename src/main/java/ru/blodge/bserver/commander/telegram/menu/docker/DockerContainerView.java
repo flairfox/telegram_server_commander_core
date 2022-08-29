@@ -444,6 +444,8 @@ public class DockerContainerView implements MessageView {
         @Override
         public void onError(Throwable throwable) {
             super.onError(throwable);
+            LOGGER.error("Error while reading container logs", throwable);
+
             SendMessage errorMessage = new SendMessage();
             errorMessage.setChatId(chatId);
             errorMessage.setParseMode("markdown");
@@ -451,7 +453,7 @@ public class DockerContainerView implements MessageView {
                     *Docker-контейнер*
                     `%s`
                                            
-                    Ошибочка вышла :-(. Логов не будет, жлектричество кончилось
+                    Ошибочка вышла :-(. Логов не будет, электричество кончилось
                     """.formatted(container.names()));
 
             try {
