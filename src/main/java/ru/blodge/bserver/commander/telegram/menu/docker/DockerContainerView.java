@@ -8,11 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.blodge.bserver.commander.model.DockerContainer;
@@ -72,7 +70,7 @@ public class DockerContainerView implements MessageView {
     private static final String LOGS_INFO_TEXT = """
             *Docker-контейнер*
             `%s`
-            
+                        
             Собираю логи контейнера, как только закончу - отправлю отдельным сообщением!
             """;
 
@@ -95,8 +93,6 @@ public class DockerContainerView implements MessageView {
 
     @Override
     public void display(CallbackQuery callbackQuery) {
-
-        long chatId = callbackQuery.getMessage().getChatId();
 
         String[] callbackDataArr = callbackQuery.getData().split("\\.");
         String containerId = callbackDataArr[1];
@@ -179,25 +175,64 @@ public class DockerContainerView implements MessageView {
             // ============================================================================== //
 
             // Сбор логов в контейнере ====================================================== //
-            case LOGS_ACTION -> {
-
-                try (LogsResultCallback logsResultCallback = new LogsResultCallback(chatId, container)) {
-                    displayContainerActionMessage(
-                            callbackQuery,
-                            container,
-                            LOGS_INFO_TEXT.formatted(container.names()));
-                    DockerService.instance().getLogs(container.id(), logsResultCallback);
-                } catch (NotFoundException e) {
-                    displayContainerNotFoundMessage(callbackQuery, container.id());
-                } catch (IOException e) {
-                    // todo
-                }
+            case LOGS_ACTION -> displayLogsMenu(
+                    callbackQuery,
+                    container
+            );
+            case LOGS_ACTION + "d" -> {
+                displayContainerActionMessage(
+                        callbackQuery,
+                        container,
+                        LOGS_INFO_TEXT.formatted(container.names())
+                );
+                sendLogs(callbackQuery, container, "d");
+            }
+            case LOGS_ACTION + "w" -> {
+                displayContainerActionMessage(
+                        callbackQuery,
+                        container,
+                        LOGS_INFO_TEXT.formatted(container.names())
+                );
+                sendLogs(callbackQuery, container, "w");
+            }
+            case LOGS_ACTION + "m" -> {
+                displayContainerActionMessage(
+                        callbackQuery,
+                        container,
+                        LOGS_INFO_TEXT.formatted(container.names())
+                );
+                sendLogs(callbackQuery, container, "m");
             }
             // ============================================================================== //
 
             // Общая информация о контейнере ================================================ //
             default -> displayContainerInfo(callbackQuery, container);
             // ============================================================================== //
+        }
+
+    }
+
+    private void sendLogs(
+            CallbackQuery callbackQuery,
+            DockerContainer container,
+            String periodLiteral) {
+
+        int logsPeriod = switch (periodLiteral) {
+            case "d" -> 86400;
+            case "w" -> 604800;
+            case "m" -> 4629743;
+            default -> -1;
+        };
+
+        try (LogsResultCallback logsResultCallback = new LogsResultCallback(
+                callbackQuery.getMessage().getChatId(),
+                periodLiteral,
+                container)) {
+            DockerService.instance().getLogs(container.id(), logsResultCallback, logsPeriod);
+        } catch (IOException e) {
+            LOGGER.error("Error while sending logs!");
+        } catch (NotFoundException e) {
+            displayContainerNotFoundMessage(callbackQuery, container.id());
         }
 
     }
@@ -246,6 +281,31 @@ public class DockerContainerView implements MessageView {
                 .build();
 
         send(containerInfo);
+    }
+
+    private void displayLogsMenu(
+            CallbackQuery callbackQuery,
+            DockerContainer container) {
+
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
+                .addButton("За сутки", buildContainerCallbackData(container.id(), LOGS_ACTION + "d"))
+                .addButton("За неделю", buildContainerCallbackData(container.id(), LOGS_ACTION + "w"))
+                .addButton("За месяц", buildContainerCallbackData(container.id(), LOGS_ACTION + "m"))
+                .nextRow()
+                .addButton(BACK_EMOJI + " Назад", buildContainerCallbackData(container.id(), "0"))
+                .build();
+
+        EditMessageText logsMenu = new EditMessageBuilder(callbackQuery)
+                .withMessageText("""
+                        *Docker-контейнер*
+                        `%s`
+                                    
+                        За какой период требуется собрать логи?
+                        """.formatted(container.names()))
+                .withReplyMarkup(keyboardMarkup)
+                .build();
+
+        send(logsMenu);
     }
 
     private void displayContainerActionConfirmation(
@@ -343,14 +403,18 @@ public class DockerContainerView implements MessageView {
     private static class LogsResultCallback extends ResultCallbackTemplate<LogsResultCallback, Frame> {
 
         private final long chatId;
+
+        private final String periodLiteral;
         private final DockerContainer container;
         private Path tempFilePath;
         private BufferedWriter bufferedWriterWriter;
 
         public LogsResultCallback(
                 long chatId,
+                String periodLiteral,
                 DockerContainer container) {
             this.chatId = chatId;
+            this.periodLiteral = periodLiteral;
             this.container = container;
         }
 
@@ -366,13 +430,14 @@ public class DockerContainerView implements MessageView {
                 LOGGER.error("There was an error while creating temp file {}", tempFilePath, e);
             }
         }
+
         @Override
         public void onNext(Frame object) {
             try {
                 bufferedWriterWriter.write(object.toString());
                 bufferedWriterWriter.newLine();
             } catch (IOException e) {
-
+                LOGGER.error("Error while writing logs to file!", e);
             }
         }
 
@@ -392,10 +457,10 @@ public class DockerContainerView implements MessageView {
             try {
                 bufferedWriterWriter.close();
                 CommanderBot.instance().execute(errorMessage);
-            } catch (TelegramApiException e) {
-
             } catch (IOException e) {
-
+                LOGGER.error("Error while closing logs stream!", e);
+            } catch (TelegramApiException e) {
+                LOGGER.error("Error while sending error message!", e);
             }
         }
 
@@ -409,6 +474,13 @@ public class DockerContainerView implements MessageView {
                 InputFile logsFile = new InputFile();
                 logsFile.setMedia(tempFilePath.toFile(), "logs.txt");
 
+                String logsPeriodCaption = switch (periodLiteral) {
+                    case "d" -> "сутки";
+                    case "w" -> "неделю";
+                    case "m" -> "месяц";
+                    default -> "ERROR";
+                };
+
                 SendDocument sendDocument = new SendDocument();
                 sendDocument.setChatId(chatId);
                 sendDocument.setParseMode("markdown");
@@ -416,17 +488,17 @@ public class DockerContainerView implements MessageView {
                         *Docker-контейнер*
                         `%s`
                                                 
-                        А вот и логи!
-                        """.formatted(container.names()));
+                        А вот и логи за %s!
+                        """.formatted(container.names(), logsPeriodCaption));
                 sendDocument.setDocument(logsFile);
                 CommanderBot.instance().execute(sendDocument);
 
                 Files.delete(tempFilePath);
 
             } catch (IOException e) {
-
+                LOGGER.error("Error while closing logs stream!", e);
             } catch (TelegramApiException e) {
-
+                LOGGER.error("Error while sending logs!", e);
             }
         }
     }

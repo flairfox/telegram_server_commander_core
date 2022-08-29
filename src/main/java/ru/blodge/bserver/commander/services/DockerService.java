@@ -81,14 +81,18 @@ public class DockerService {
         }
     }
 
-    public void getLogs(String containerId, ResultCallback<Frame> resultCallback) throws NotFoundException {
+    public void getLogs(
+            String containerId,
+            ResultCallback<Frame> resultCallback,
+            int logsPeriod
+    ) throws NotFoundException {
         int currentTs = Math.toIntExact(System.currentTimeMillis() / 1000L);
         try (LogContainerCmd logContainerCmd = dockerClient
                 .logContainerCmd(containerId)
                 .withContainerId(containerId)
                 .withStdOut(true)
                 .withStdErr(true)
-                .withSince(currentTs - 86400)) {
+                .withSince(currentTs - logsPeriod)) {
 
             logContainerCmd.exec(resultCallback);
         }
