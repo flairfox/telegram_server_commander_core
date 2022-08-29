@@ -71,7 +71,7 @@ public class DockerContainerView implements MessageView {
             *Docker-контейнер*
             `%s`
                         
-            Собираю логи контейнера. По завершении отправлю отдельным сообщением...
+            Собираю логи контейнера. По завершении отправлю логи отдельным сообщением...
             """;
 
     private static final String ALREADY_STOPPED_TEXT = """
