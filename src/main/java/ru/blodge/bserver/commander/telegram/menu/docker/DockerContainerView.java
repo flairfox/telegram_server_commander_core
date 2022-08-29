@@ -69,6 +69,13 @@ public class DockerContainerView implements MessageView {
             `%s` запускается!
             """;
 
+    private static final String LOGS_INFO_TEXT = """
+            *Docker-контейнер*
+            `%s`
+            
+            Собираю логи контейнера, как только закончу - отправлю отдельным сообщением!
+            """;
+
     private static final String ALREADY_STOPPED_TEXT = """
             *Docker-контейнер с ID*
             `%s`
@@ -175,6 +182,10 @@ public class DockerContainerView implements MessageView {
             case LOGS_ACTION -> {
 
                 try (LogsResultCallback logsResultCallback = new LogsResultCallback(chatId, container)) {
+                    displayContainerActionMessage(
+                            callbackQuery,
+                            container,
+                            LOGS_INFO_TEXT.formatted(container.names()));
                     DockerService.instance().getLogs(container.id(), logsResultCallback);
                 } catch (NotFoundException e) {
                     displayContainerNotFoundMessage(callbackQuery, container.id());
@@ -333,8 +344,6 @@ public class DockerContainerView implements MessageView {
 
         private final long chatId;
         private final DockerContainer container;
-
-        private int initialMessageId;
         private Path tempFilePath;
         private BufferedWriter bufferedWriterWriter;
 
@@ -353,26 +362,10 @@ public class DockerContainerView implements MessageView {
             try {
                 FileWriter fileWriter = new FileWriter(tempFilePath.toFile());
                 bufferedWriterWriter = new BufferedWriter(fileWriter);
-
-                SendMessage sendMessage = new SendMessage();
-                sendMessage.setChatId(chatId);
-                sendMessage.setParseMode("markdown");
-                sendMessage.setText("""
-                        *Docker-контейнер*
-                        `%s`
-                                                
-                        Логи контейнера собираются и настаиваются, наберись терпения!
-                        """.formatted(container.names()));
-
-                Message initialMessage = CommanderBot.instance().execute(sendMessage);
-                initialMessageId = initialMessage.getMessageId();
             } catch (IOException e) {
                 LOGGER.error("There was an error while creating temp file {}", tempFilePath, e);
-            } catch (TelegramApiException e) {
-
             }
         }
-
         @Override
         public void onNext(Frame object) {
             try {
@@ -386,11 +379,10 @@ public class DockerContainerView implements MessageView {
         @Override
         public void onError(Throwable throwable) {
             super.onError(throwable);
-            EditMessageText editMessageText = new EditMessageText();
-            editMessageText.setChatId(chatId);
-            editMessageText.setMessageId(initialMessageId);
-            editMessageText.setParseMode("markdown");
-            editMessageText.setText("""
+            SendMessage errorMessage = new SendMessage();
+            errorMessage.setChatId(chatId);
+            errorMessage.setParseMode("markdown");
+            errorMessage.setText("""
                     *Docker-контейнер*
                     `%s`
                                            
@@ -399,7 +391,7 @@ public class DockerContainerView implements MessageView {
 
             try {
                 bufferedWriterWriter.close();
-                CommanderBot.instance().execute(editMessageText);
+                CommanderBot.instance().execute(errorMessage);
             } catch (TelegramApiException e) {
 
             } catch (IOException e) {
@@ -416,11 +408,6 @@ public class DockerContainerView implements MessageView {
 
                 InputFile logsFile = new InputFile();
                 logsFile.setMedia(tempFilePath.toFile(), "logs.txt");
-
-                DeleteMessage deleteMessage = new DeleteMessage();
-                deleteMessage.setChatId(chatId);
-                deleteMessage.setMessageId(initialMessageId);
-                CommanderBot.instance().execute(deleteMessage);
 
                 SendDocument sendDocument = new SendDocument();
                 sendDocument.setChatId(chatId);
