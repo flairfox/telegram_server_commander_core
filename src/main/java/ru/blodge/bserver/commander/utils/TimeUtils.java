@@ -23,7 +23,7 @@ public class TimeUtils {
 
         long hours = duration.toHours();
         if (hours != 0) {
-            return hours + " час.";
+            return hours + " ч.";
         }
 
         long minutes = duration.toMinutes();
