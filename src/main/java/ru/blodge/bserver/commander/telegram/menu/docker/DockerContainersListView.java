@@ -13,9 +13,7 @@ import ru.blodge.bserver.commander.telegram.menu.MessageView;
 import ru.blodge.bserver.commander.utils.builders.EditMessageBuilder;
 import ru.blodge.bserver.commander.utils.builders.InlineKeyboardBuilder;
 
-import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAINERS_MENU_SELECTOR;
-import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAINER_MENU_SELECTOR;
-import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.*;
 import static ru.blodge.bserver.commander.utils.Emoji.BACK_EMOJI;
 import static ru.blodge.bserver.commander.utils.Emoji.REFRESH_EMOJI;
 
@@ -35,7 +33,7 @@ public class DockerContainersListView implements MessageView {
 
         InlineKeyboardMarkup keyboardMarkup = keyboardBuilder
                 .addButton(REFRESH_EMOJI + " Обновить", DOCKER_CONTAINERS_MENU_SELECTOR)
-                .addButton(BACK_EMOJI + " Назад", DOCKER_MENU_SELECTOR)
+                .addButton(BACK_EMOJI + " Назад", MAIN_MENU_SELECTOR)
                 .build();
 
         EditMessageText dockerContainers = new EditMessageBuilder(callbackQuery)
