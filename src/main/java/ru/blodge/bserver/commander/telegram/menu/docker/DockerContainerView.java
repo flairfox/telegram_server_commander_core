@@ -271,10 +271,12 @@ public class DockerContainerView implements MessageView {
                         `%s`
 
                         *ID:*\t`%s`
-                        *Состояние:*\t%s
+                        *Сети:*\t`%s`
+                        *Статус:*\t%s
                         """.formatted(
                         container.names(),
                         container.id(),
+                        String.join(", ", container.networks()),
                         container.status().statusEmoji() + " " + container.status().statusDuration()
                 ))
                 .withReplyMarkup(keyboardMarkup)

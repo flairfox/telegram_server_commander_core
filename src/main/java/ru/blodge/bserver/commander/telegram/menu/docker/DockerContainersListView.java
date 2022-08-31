@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.blodge.bserver.commander.model.DockerContainer;
+import ru.blodge.bserver.commander.model.DockerContainerLite;
 import ru.blodge.bserver.commander.services.DockerService;
 import ru.blodge.bserver.commander.telegram.CommanderBot;
 import ru.blodge.bserver.commander.telegram.menu.MessageView;
@@ -25,7 +25,7 @@ public class DockerContainersListView implements MessageView {
     public void display(CallbackQuery callbackQuery) {
 
         InlineKeyboardBuilder keyboardBuilder = new InlineKeyboardBuilder();
-        for (DockerContainer container : DockerService.instance().getContainers()) {
+        for (DockerContainerLite container : DockerService.instance().getContainers()) {
             keyboardBuilder
                     .addButton(buildContainerCaption(container), buildContainerCallbackData(container))
                     .nextRow();
@@ -52,11 +52,11 @@ public class DockerContainersListView implements MessageView {
         }
     }
 
-    private String buildContainerCaption(DockerContainer container) {
+    private String buildContainerCaption(DockerContainerLite container) {
         return container.status().statusEmoji() + " " + container.names();
     }
 
-    private String buildContainerCallbackData(DockerContainer container) {
+    private String buildContainerCallbackData(DockerContainerLite container) {
         return DOCKER_CONTAINER_MENU_SELECTOR + "." + container.id() + ".d";
     }
 

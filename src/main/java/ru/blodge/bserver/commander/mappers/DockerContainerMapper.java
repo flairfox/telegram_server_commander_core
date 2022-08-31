@@ -3,10 +3,12 @@ package ru.blodge.bserver.commander.mappers;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
 import ru.blodge.bserver.commander.model.DockerContainer;
+import ru.blodge.bserver.commander.model.DockerContainerLite;
 import ru.blodge.bserver.commander.model.DockerContainerStatus;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static ru.blodge.bserver.commander.utils.Emoji.GREEN_CIRCLE_EMOJI;
 import static ru.blodge.bserver.commander.utils.Emoji.RED_CIRCLE_EMOJI;
@@ -15,7 +17,7 @@ import static ru.blodge.bserver.commander.utils.TimeUtils.getDuration;
 
 public class DockerContainerMapper {
 
-    public DockerContainer toDockerContainer(Container container) {
+    public DockerContainerLite toDockerContainer(Container container) {
         boolean isRunning;
         String statusEmoji;
         String statusCaption;
@@ -34,7 +36,7 @@ public class DockerContainerMapper {
                 .map(name -> name.startsWith("/") ? name.substring(1) : name)
                 .toList();
 
-        return new DockerContainer(
+        return new DockerContainerLite(
                 String.join(", ", names),
                 container.getId().substring(0, 12),
                 new DockerContainerStatus(
@@ -52,8 +54,9 @@ public class DockerContainerMapper {
         String statusCaption;
         String statusDuration;
 
+        String name = container.getName().startsWith("/") ? container.getName().substring(1) : container.getName();
+        Set<String> networks = container.getNetworkSettings().getNetworks().keySet();
         InspectContainerResponse.ContainerState state = container.getState();
-
         if ("running".equals(state.getStatus())) {
             isRunning = true;
             statusEmoji = GREEN_CIRCLE_EMOJI;
@@ -66,10 +69,10 @@ public class DockerContainerMapper {
             statusDuration = formatDuration(getDuration(state.getFinishedAt()));
         }
 
-        String name = container.getName().startsWith("/") ? container.getName().substring(1) : container.getName();
         return new DockerContainer(
                 name,
                 container.getId().substring(0, 12),
+                networks,
                 new DockerContainerStatus(
                         isRunning,
                         statusEmoji,

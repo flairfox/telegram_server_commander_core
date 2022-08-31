@@ -2,12 +2,7 @@ package ru.blodge.bserver.commander.services;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.command.InspectContainerCmd;
-import com.github.dockerjava.api.command.ListContainersCmd;
-import com.github.dockerjava.api.command.LogContainerCmd;
-import com.github.dockerjava.api.command.RestartContainerCmd;
-import com.github.dockerjava.api.command.StartContainerCmd;
-import com.github.dockerjava.api.command.StopContainerCmd;
+import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Frame;
@@ -20,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.blodge.bserver.commander.mappers.DockerContainerMapper;
 import ru.blodge.bserver.commander.model.DockerContainer;
+import ru.blodge.bserver.commander.model.DockerContainerLite;
 
 import java.util.List;
 
@@ -98,7 +94,7 @@ public class DockerService {
         }
     }
 
-    public List<DockerContainer> getContainers() {
+    public List<DockerContainerLite> getContainers() {
         LOGGER.debug("Listing all containers");
         try (ListContainersCmd listContainersCmd = dockerClient.listContainersCmd().withShowAll(true)) {
             return listContainersCmd.exec().stream()
