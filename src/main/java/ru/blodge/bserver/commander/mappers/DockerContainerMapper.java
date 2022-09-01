@@ -2,13 +2,14 @@ package ru.blodge.bserver.commander.mappers;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Ports;
 import ru.blodge.bserver.commander.model.DockerContainer;
 import ru.blodge.bserver.commander.model.DockerContainerLite;
 import ru.blodge.bserver.commander.model.DockerContainerStatus;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static ru.blodge.bserver.commander.utils.Emoji.GREEN_CIRCLE_EMOJI;
 import static ru.blodge.bserver.commander.utils.Emoji.RED_CIRCLE_EMOJI;
@@ -49,13 +50,45 @@ public class DockerContainerMapper {
     }
 
     public DockerContainer toDockerContainer(InspectContainerResponse container) {
+        String name = container.getName().startsWith("/") ? container.getName().substring(1) : container.getName();
+        Set<String> networks = container.getNetworkSettings().getNetworks().keySet();
+        Map<String, Set<String>> portBindings = buildPortBindings(container);
+
+
+        return new DockerContainer(
+                name,
+                container.getId().substring(0, 12),
+                portBindings,
+                networks,
+                buildContainerStatus(container)
+        );
+    }
+
+    private Map<String, Set<String>> buildPortBindings(InspectContainerResponse container) {
+        Map<String, Set<String>> result = new HashMap<>();
+
+        if (container.getHostConfig().getPortBindings() == null) {
+            return result;
+        }
+
+        Map<ExposedPort, Ports.Binding[]> bindings = container.getHostConfig().getPortBindings().getBindings();
+        for (ExposedPort exposedPort : bindings.keySet()) {
+            Set<String> ports = Arrays.stream(bindings.get(exposedPort))
+                    .map(Ports.Binding::getHostPortSpec)
+                    .collect(Collectors.toSet());
+
+            result.put(exposedPort.getPort() + "/" + exposedPort.getProtocol().name(), ports);
+        }
+
+        return result;
+    }
+
+    private DockerContainerStatus buildContainerStatus(InspectContainerResponse container) {
         boolean isRunning;
         String statusEmoji;
         String statusCaption;
         String statusDuration;
 
-        String name = container.getName().startsWith("/") ? container.getName().substring(1) : container.getName();
-        Set<String> networks = container.getNetworkSettings().getNetworks().keySet();
         InspectContainerResponse.ContainerState state = container.getState();
         if ("running".equals(state.getStatus())) {
             isRunning = true;
@@ -69,16 +102,11 @@ public class DockerContainerMapper {
             statusDuration = formatDuration(getDuration(state.getFinishedAt()));
         }
 
-        return new DockerContainer(
-                name,
-                container.getId().substring(0, 12),
-                networks,
-                new DockerContainerStatus(
-                        isRunning,
-                        statusEmoji,
-                        statusCaption,
-                        statusDuration
-                )
+        return new DockerContainerStatus(
+                isRunning,
+                statusEmoji,
+                statusCaption,
+                statusDuration
         );
     }
 

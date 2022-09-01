@@ -265,19 +265,33 @@ public class DockerContainerView implements MessageView {
 
         InlineKeyboardMarkup keyboardMarkup = keyboardBuilder.build();
 
+        StringBuilder sb = new StringBuilder();
+        if (container.portBindings().isEmpty()) {
+            sb.append("нет");
+        } else {
+            for (String containerPort : container.portBindings().keySet()) {
+                sb.append(containerPort)
+                        .append(" -> ")
+                        .append(String.join(", ", container.portBindings().get(containerPort)))
+                        .append("\n");
+            }
+        }
+
         EditMessageText containerInfo = new EditMessageBuilder(callbackQuery)
                 .withMessageText("""
                         *Docker-контейнер*
                         `%s`
 
+                        *Статус:*\t%s
                         *ID:*\t`%s`
                         *Сети:*\t`%s`
-                        *Статус:*\t%s
+                        *Порты:*\t`%s`
                         """.formatted(
                         container.names(),
+                        container.status().statusEmoji() + " " + container.status().statusDuration(),
                         container.id(),
                         String.join(", ", container.networks()),
-                        container.status().statusEmoji() + " " + container.status().statusDuration()
+                        sb.toString()
                 ))
                 .withReplyMarkup(keyboardMarkup)
                 .build();

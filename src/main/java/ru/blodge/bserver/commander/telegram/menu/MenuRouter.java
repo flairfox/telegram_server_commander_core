@@ -27,7 +27,8 @@ public class MenuRouter {
 
     public static void route(CallbackQuery callbackQuery) {
         LOGGER.debug("Received callback query with data {}.", callbackQuery.getData());
-        String viewSelector = callbackQuery.getData().split("\\.")[0];
+        String[] args = callbackQuery.getData().split("\\.");
+        String viewSelector = args[0];
         MessageView messageView = viewSelectorMap.get(viewSelector);
         if (messageView == null) {
             LOGGER.error("No MessageView is available for selector {}", viewSelector);
