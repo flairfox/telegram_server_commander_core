@@ -65,9 +65,9 @@ public class SystemMenuView implements MessageView {
             CommanderBot.instance().execute(mainMenuMessage);
 
         } catch (IOException e) {
-            e.printStackTrace(); // todo replace!!!
+            LOGGER.error("Error retrieving system info.", e);
         } catch (TelegramApiException e) {
-            LOGGER.error("Error executing system menu message", e);
+            LOGGER.error("Error executing system menu message.", e);
         }
 
     }
