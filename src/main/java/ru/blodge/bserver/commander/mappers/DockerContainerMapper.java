@@ -50,16 +50,18 @@ public class DockerContainerMapper {
     }
 
     public DockerContainerInfo toDockerContainerInfo(InspectContainerResponse container) {
+
         String name = container.getName().startsWith("/") ? container.getName().substring(1) : container.getName();
         Set<String> networks = container.getNetworkSettings().getNetworks().keySet();
         Set<String> portBindings = buildPortBindings(container);
-
+        Set<String> volumes = buildVolumes(container);
 
         return new DockerContainerInfo(
                 name,
                 container.getId().substring(0, 12),
                 portBindings,
                 networks,
+                volumes,
                 buildContainerStatus(container)
         );
     }
@@ -87,6 +89,15 @@ public class DockerContainerMapper {
         }
 
         return result;
+    }
+
+    private Set<String> buildVolumes(InspectContainerResponse container) {
+
+        if (container.getConfig().getVolumes() == null) {
+            return Set.of();
+        }
+
+        return container.getConfig().getVolumes().keySet();
     }
 
     private DockerContainerStatus buildContainerStatus(InspectContainerResponse container) {

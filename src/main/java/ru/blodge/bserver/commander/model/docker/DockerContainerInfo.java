@@ -7,5 +7,6 @@ public record DockerContainerInfo(
         String id,
         Set<String> portBindings,
         Set<String> networks,
+        Set<String> volumes,
         DockerContainerStatus status
 ) {}

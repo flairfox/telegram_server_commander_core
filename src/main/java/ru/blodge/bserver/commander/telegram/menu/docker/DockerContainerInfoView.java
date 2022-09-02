@@ -267,6 +267,8 @@ public class DockerContainerInfoView implements MessageView {
                 "-" : String.join(", ", container.networks());
         String containerPortBindings = container.portBindings().isEmpty() ?
                 "-" : String.join("\n", container.portBindings());
+        String containerVolumeBindings = container.volumes().isEmpty() ?
+                "-" : String.join("\n", container.volumes());
 
         EditMessageText containerInfo = TelegramMessageFactory.buildEditMessage(
                 context.chatId(),
@@ -279,12 +281,14 @@ public class DockerContainerInfoView implements MessageView {
                         *ID:*\t`%s`
                         *Сети:*\t`%s`
                         *Порты:*\t`%s`
+                        *Тома:*\t`%s`
                         """.formatted(
                         container.names(),
                         containerStatus,
                         container.id(),
                         containerNetworks,
-                        containerPortBindings),
+                        containerPortBindings,
+                        containerVolumeBindings),
                 keyboard);
 
         send(containerInfo);
