@@ -44,8 +44,8 @@ public class ResourceUtilizationView implements MessageView {
                             *CPU:*\t`%s`
                             *RAM:*\t`%s`
                             """.formatted(
-                            resourceUtilizationInfo.cpuUtilization(),
-                            resourceUtilizationInfo.memoryUtilization()),
+                            displayProgressbar(resourceUtilizationInfo.cpuUtilization()),
+                            displayProgressbar(resourceUtilizationInfo.memoryUtilization())),
                     keyboard);
 
             CommanderBot.instance().execute(mainMenuMessage);
@@ -56,6 +56,25 @@ public class ResourceUtilizationView implements MessageView {
             LOGGER.error("Error executing system menu message.", e);
         }
 
+    }
+
+    private String displayProgressbar(float value) {
+        int normalizedValue = Math.round((value * 2) / 10);
+        StringBuilder result = new StringBuilder()
+                .append("[");
+
+        for (int i = 0; i < 20; i++) {
+            if (normalizedValue > i) {
+                result.append("#");
+            } else {
+                result.append("-");
+            }
+        }
+
+        return result.append("] ")
+                .append(value)
+                .append("%")
+                .toString();
     }
 
 }
