@@ -1,4 +1,4 @@
-package ru.blodge.bserver.commander.model;
+package ru.blodge.bserver.commander.model.docker;
 
 public record DockerContainerStatus(
         boolean isRunning,

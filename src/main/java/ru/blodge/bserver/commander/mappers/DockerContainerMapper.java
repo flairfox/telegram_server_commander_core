@@ -4,9 +4,9 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Ports;
-import ru.blodge.bserver.commander.model.DockerContainer;
-import ru.blodge.bserver.commander.model.DockerContainerInfo;
-import ru.blodge.bserver.commander.model.DockerContainerStatus;
+import ru.blodge.bserver.commander.model.docker.DockerContainer;
+import ru.blodge.bserver.commander.model.docker.DockerContainerInfo;
+import ru.blodge.bserver.commander.model.docker.DockerContainerStatus;
 
 import java.util.*;
 import java.util.stream.Collectors;

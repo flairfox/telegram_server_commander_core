@@ -14,8 +14,8 @@ import com.github.dockerjava.transport.DockerHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.blodge.bserver.commander.mappers.DockerContainerMapper;
-import ru.blodge.bserver.commander.model.DockerContainerInfo;
-import ru.blodge.bserver.commander.model.DockerContainer;
+import ru.blodge.bserver.commander.model.docker.DockerContainerInfo;
+import ru.blodge.bserver.commander.model.docker.DockerContainer;
 
 import java.util.List;
 
