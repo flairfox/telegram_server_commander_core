@@ -2,6 +2,7 @@ package ru.blodge.bserver.commander.services;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+import ru.blodge.bserver.commander.model.system.ResourceUtilizationInfo;
 import ru.blodge.bserver.commander.model.system.SystemInfo;
 import ru.blodge.bserver.commander.retrofit.SystemInfoApi;
 
@@ -30,6 +31,12 @@ public class SystemService {
 
     public SystemInfo getSystemInfo() throws IOException {
         return systemInfoApi.getSystemInfo()
+                .execute()
+                .body();
+    }
+
+    public ResourceUtilizationInfo getResourceUtilizationInfo() throws IOException {
+        return systemInfoApi.getResourceUtilizationInfo()
                 .execute()
                 .body();
     }

@@ -5,7 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.blodge.bserver.commander.telegram.menu.docker.DockerContainerInfoView;
 import ru.blodge.bserver.commander.telegram.menu.docker.DockerContainersListView;
-import ru.blodge.bserver.commander.telegram.menu.system.SystemMenuView;
+import ru.blodge.bserver.commander.telegram.menu.system.ResourceUtilizationView;
+import ru.blodge.bserver.commander.telegram.menu.system.SystemInfoView;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -18,12 +19,14 @@ public class MenuRouter {
     public static final String DOCKER_CONTAINERS_MENU_SELECTOR = "2";
     public static final String DOCKER_CONTAINER_INFO_MENU_SELECTOR = "3";
     public static final String SYSTEM_INFO_MENU_SELECTOR = "4";
+    public static final String RESOURCE_UTILIZATION_MENU_SELECTOR = "5";
 
     private static final Map<String, MessageView> viewSelectorMap = Map.of(
             MAIN_MENU_SELECTOR, new MainMenuView(),
             DOCKER_CONTAINERS_MENU_SELECTOR, new DockerContainersListView(),
             DOCKER_CONTAINER_INFO_MENU_SELECTOR, new DockerContainerInfoView(),
-            SYSTEM_INFO_MENU_SELECTOR, new SystemMenuView()
+            SYSTEM_INFO_MENU_SELECTOR, new SystemInfoView(),
+            RESOURCE_UTILIZATION_MENU_SELECTOR, new ResourceUtilizationView()
     );
 
     private MenuRouter() {

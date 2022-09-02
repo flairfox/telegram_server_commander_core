@@ -9,8 +9,7 @@ import ru.blodge.bserver.commander.telegram.CommanderBot;
 import ru.blodge.bserver.commander.utils.builders.InlineKeyboardBuilder;
 import ru.blodge.bserver.commander.utils.factories.TelegramMessageFactory;
 
-import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAINERS_MENU_SELECTOR;
-import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.SYSTEM_INFO_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.*;
 
 public class MainMenuView implements MessageView {
 
@@ -21,6 +20,8 @@ public class MainMenuView implements MessageView {
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardBuilder()
                 .addButton("Системе", SYSTEM_INFO_MENU_SELECTOR)
+                .nextRow()
+                .addButton("Системных ресурсах", RESOURCE_UTILIZATION_MENU_SELECTOR)
                 .nextRow()
                 .addButton("Docker-контейнерах", DOCKER_CONTAINERS_MENU_SELECTOR)
                 .build();

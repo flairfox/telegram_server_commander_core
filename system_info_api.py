@@ -19,9 +19,22 @@ def getSystemInfo():
     except Exception as e:
         logging.exception(e)
 
+def getResourceUtilizationInfo():
+    try:
+        info={}
+        info['cpu-utilization']=psutil.cpu_percent()
+        info['memory-utilization']=psutil.virtual_memory().percent
+        return json.dumps(info)
+    except Exception as e:
+        logging.exception(e)
+
 @app.route('/sysinfo', methods=['GET'])
 def get_system_info():
     return getSystemInfo()
+
+@app.route('/utilization', methods=['GET'])
+def get_resource_utilization_info():
+    return getResourceUtilizationInfo()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port='5001', debug=True)
