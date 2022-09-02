@@ -262,6 +262,7 @@ public class DockerContainerInfoView implements MessageView {
 
         InlineKeyboardMarkup keyboard = keyboardBuilder.build();
 
+        String containerStatus = container.status().statusEmoji() + " " + container.status().statusDuration();
         String containerNetworks = container.networks().isEmpty() ?
                 "-" : String.join(", ", container.networks());
         String containerPortBindings = container.portBindings().isEmpty() ?
@@ -280,7 +281,7 @@ public class DockerContainerInfoView implements MessageView {
                         *Порты:*\t`%s`
                         """.formatted(
                         container.names(),
-                        container.status().statusEmoji() + " " + container.status().statusDuration(),
+                        containerStatus,
                         container.id(),
                         containerNetworks,
                         containerPortBindings),
