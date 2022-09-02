@@ -58,7 +58,7 @@ public class DockerContainersListView implements MessageView {
     }
 
     private String buildContainerCallbackData(DockerContainer container) {
-        return DOCKER_CONTAINER_MENU_SELECTOR + "." + container.id() + ".d";
+        return DOCKER_CONTAINER_INFO_MENU_SELECTOR + "." + container.id() + ".d";
     }
 
 }

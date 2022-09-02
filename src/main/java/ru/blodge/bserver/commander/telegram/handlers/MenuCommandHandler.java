@@ -10,6 +10,7 @@ import ru.blodge.bserver.commander.telegram.CommanderBot;
 import ru.blodge.bserver.commander.utils.builders.InlineKeyboardBuilder;
 
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAINERS_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.SYSTEM_INFO_MENU_SELECTOR;
 
 public class MenuCommandHandler implements UpdateHandler {
 
@@ -29,12 +30,13 @@ public class MenuCommandHandler implements UpdateHandler {
                 Это главное меню твоего Сервера, здесь можно узнать о:
                 """);
 
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
-                .addButton("Docker-контейнерах", DOCKER_CONTAINERS_MENU_SELECTOR)
+        InlineKeyboardMarkup keyboard = new InlineKeyboardBuilder()
+                .addButton("Системе", SYSTEM_INFO_MENU_SELECTOR)
                 .nextRow()
+                .addButton("Docker-контейнерах", DOCKER_CONTAINERS_MENU_SELECTOR)
                 .build();
 
-        mainMenuMessage.setReplyMarkup(keyboardMarkup);
+        mainMenuMessage.setReplyMarkup(keyboard);
 
         try {
             CommanderBot.instance().execute(mainMenuMessage);

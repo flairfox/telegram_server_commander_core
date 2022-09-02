@@ -30,7 +30,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAINERS_MENU_SELECTOR;
-import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAINER_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAINER_INFO_MENU_SELECTOR;
 import static ru.blodge.bserver.commander.utils.Emoji.BACK_EMOJI;
 import static ru.blodge.bserver.commander.utils.Emoji.REFRESH_EMOJI;
 
@@ -405,7 +405,7 @@ public class DockerContainerInfoView implements MessageView {
 
     private String buildContainerCallbackData(String containerId, String action) {
         StringBuilder sb = new StringBuilder();
-        sb.append(DOCKER_CONTAINER_MENU_SELECTOR)
+        sb.append(DOCKER_CONTAINER_INFO_MENU_SELECTOR)
                 .append(".").append(containerId, 0, 12);
         if (action != null) {
             sb.append(".").append(action);
