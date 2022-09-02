@@ -7,6 +7,8 @@ import ru.blodge.bserver.commander.retrofit.SystemInfoApi;
 
 import java.io.IOException;
 
+import static ru.blodge.bserver.commander.configuration.TelegramBotConfig.SYSTEM_INFO_HOST;
+
 public class SystemService {
 
     private final SystemInfoApi systemInfoApi;
@@ -15,7 +17,7 @@ public class SystemService {
 
     private SystemService() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://localhost:5000")
+                .baseUrl(SYSTEM_INFO_HOST)
                 .addConverterFactory(JacksonConverterFactory.create())
                 .build();
 
