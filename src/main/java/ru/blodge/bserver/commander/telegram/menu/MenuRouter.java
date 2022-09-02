@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.blodge.bserver.commander.telegram.menu.docker.DockerContainerView;
 import ru.blodge.bserver.commander.telegram.menu.docker.DockerContainersListView;
 
+import java.util.Arrays;
 import java.util.Map;
 
 public class MenuRouter {
@@ -27,13 +28,18 @@ public class MenuRouter {
 
     public static void route(CallbackQuery callbackQuery) {
         LOGGER.debug("Received callback query with data {}.", callbackQuery.getData());
-        String[] args = callbackQuery.getData().split("\\.");
-        String viewSelector = args[0];
+        String[] callbackData = callbackQuery.getData().split("\\.");
+        String viewSelector = callbackData[0];
         MessageView messageView = viewSelectorMap.get(viewSelector);
         if (messageView == null) {
             LOGGER.error("No MessageView is available for selector {}", viewSelector);
         } else {
-            messageView.display(callbackQuery);
+            String[] args = Arrays.copyOfRange(callbackData, 1, callbackData.length);
+            MessageContext messageContext = new MessageContext(
+                    callbackQuery.getMessage().getChatId(),
+                    callbackQuery.getMessage().getMessageId(),
+                    args);
+            messageView.display(messageContext);
         }
     }
 

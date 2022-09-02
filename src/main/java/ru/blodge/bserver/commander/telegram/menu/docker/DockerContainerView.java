@@ -9,16 +9,16 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.blodge.bserver.commander.model.DockerContainer;
 import ru.blodge.bserver.commander.services.DockerService;
 import ru.blodge.bserver.commander.telegram.CommanderBot;
+import ru.blodge.bserver.commander.telegram.menu.MessageContext;
 import ru.blodge.bserver.commander.telegram.menu.MessageView;
-import ru.blodge.bserver.commander.utils.builders.EditMessageBuilder;
 import ru.blodge.bserver.commander.utils.builders.InlineKeyboardBuilder;
+import ru.blodge.bserver.commander.utils.factories.TelegramMessageFactory;
 
 import java.io.BufferedWriter;
 import java.io.Closeable;
@@ -92,61 +92,59 @@ public class DockerContainerView implements MessageView {
     private static final String LOGS_ACTION = "4";
 
     @Override
-    public void display(CallbackQuery callbackQuery) {
-
-        String[] callbackDataArr = callbackQuery.getData().split("\\.");
-        String containerId = callbackDataArr[1];
-        String action = callbackDataArr[2];
+    public void display(MessageContext context) {
+        String containerId = context.args()[0];
+        String action = context.args()[1];
 
         DockerContainer container;
         try {
             container = DockerService.instance().getContainer(containerId);
         } catch (NotFoundException e) {
-            displayContainerNotFoundMessage(callbackQuery, containerId);
+            displayContainerNotFoundMessage(context, containerId);
             return;
         }
 
         switch (action) {
             // Перезапуск контейнера ======================================================== //
             case RESTART_ACTION + "?" -> displayContainerActionConfirmation(
-                    callbackQuery,
+                    context,
                     container,
                     RESTART_ACTION,
                     RESTART_CONFIRMATION_TEXT.formatted(container.names()));
             case RESTART_ACTION + "!" -> {
                 displayContainerActionMessage(
-                        callbackQuery,
+                        context,
                         container,
                         RESTART_INFO_TEXT.formatted(container.names()));
 
                 try {
                     DockerService.instance().restartContainer(container.id());
                 } catch (NotFoundException e) {
-                    displayContainerNotFoundMessage(callbackQuery, container.id());
+                    displayContainerNotFoundMessage(context, container.id());
                 }
             }
             // ============================================================================== //
 
             // Остановка контейнера ========================================================= //
             case STOP_ACTION + "?" -> displayContainerActionConfirmation(
-                    callbackQuery,
+                    context,
                     container,
                     STOP_ACTION,
                     STOP_CONFIRMATION_TEXT.formatted(container.names()));
             case STOP_ACTION + "!" -> {
                 displayContainerActionMessage(
-                        callbackQuery,
+                        context,
                         container,
                         STOP_INFO_TEXT.formatted(container.names()));
 
                 try {
                     DockerService.instance().stopContainer(container.id());
                 } catch (NotFoundException e) {
-                    displayContainerNotFoundMessage(callbackQuery, container.id());
+                    displayContainerNotFoundMessage(context, container.id());
                 } catch (NotModifiedException e) {
                     LOGGER.error("Trying to stop container with ID {}, that already stopped", container.id());
                     displayContainerNotModifiedMessage(
-                            callbackQuery,
+                            context,
                             container.id(),
                             ALREADY_STOPPED_TEXT.formatted(container.id()));
                 }
@@ -156,18 +154,18 @@ public class DockerContainerView implements MessageView {
             // Запуск контейнера ============================================================ //
             case LAUNCH_ACTION -> {
                 displayContainerActionMessage(
-                        callbackQuery,
+                        context,
                         container,
                         LAUNCH_INFO_TEXT.formatted(container.names()));
 
                 try {
                     DockerService.instance().startContainer(container.id());
                 } catch (NotFoundException e) {
-                    displayContainerNotFoundMessage(callbackQuery, container.id());
+                    displayContainerNotFoundMessage(context, container.id());
                 } catch (NotModifiedException e) {
                     LOGGER.error("Trying to start container with ID {}, that already started", container.id());
                     displayContainerNotModifiedMessage(
-                            callbackQuery,
+                            context,
                             container.id(),
                             ALREADY_LAUNCHED_TEXT.formatted(container.id()));
                 }
@@ -176,44 +174,44 @@ public class DockerContainerView implements MessageView {
 
             // Сбор логов в контейнере ====================================================== //
             case LOGS_ACTION -> displayLogsMenu(
-                    callbackQuery,
+                    context,
                     container
             );
             case LOGS_ACTION + "d" -> {
                 displayContainerActionMessage(
-                        callbackQuery,
+                        context,
                         container,
                         LOGS_INFO_TEXT.formatted(container.names())
                 );
-                sendLogs(callbackQuery, container, "d");
+                sendLogs(context, container, "d");
             }
             case LOGS_ACTION + "w" -> {
                 displayContainerActionMessage(
-                        callbackQuery,
+                        context,
                         container,
                         LOGS_INFO_TEXT.formatted(container.names())
                 );
-                sendLogs(callbackQuery, container, "w");
+                sendLogs(context, container, "w");
             }
             case LOGS_ACTION + "m" -> {
                 displayContainerActionMessage(
-                        callbackQuery,
+                        context,
                         container,
                         LOGS_INFO_TEXT.formatted(container.names())
                 );
-                sendLogs(callbackQuery, container, "m");
+                sendLogs(context, container, "m");
             }
             // ============================================================================== //
 
             // Общая информация о контейнере ================================================ //
-            default -> displayContainerInfo(callbackQuery, container);
+            default -> displayContainerInfo(context, container);
             // ============================================================================== //
         }
 
     }
 
     private void sendLogs(
-            CallbackQuery callbackQuery,
+            MessageContext context,
             DockerContainer container,
             String periodLiteral) {
 
@@ -225,20 +223,20 @@ public class DockerContainerView implements MessageView {
         };
 
         try (LogsResultCallback logsResultCallback = new LogsResultCallback(
-                callbackQuery.getMessage().getChatId(),
+                context.chatId(),
                 periodLiteral,
                 container)) {
             DockerService.instance().getLogs(container.id(), logsResultCallback, logsPeriod);
         } catch (IOException e) {
             LOGGER.error("Error while sending logs!");
         } catch (NotFoundException e) {
-            displayContainerNotFoundMessage(callbackQuery, container.id());
+            displayContainerNotFoundMessage(context, container.id());
         }
 
     }
 
     private void displayContainerInfo(
-            CallbackQuery callbackQuery,
+            MessageContext context,
             DockerContainer container) {
 
         InlineKeyboardBuilder keyboardBuilder = new InlineKeyboardBuilder();
@@ -263,7 +261,7 @@ public class DockerContainerView implements MessageView {
                 .addButton(REFRESH_EMOJI + " Обновить", buildContainerCallbackData(container.id(), "d"))
                 .addButton(BACK_EMOJI + " Назад", DOCKER_CONTAINERS_MENU_SELECTOR);
 
-        InlineKeyboardMarkup keyboardMarkup = keyboardBuilder.build();
+        InlineKeyboardMarkup keyboard = keyboardBuilder.build();
 
         StringBuilder sb = new StringBuilder();
         if (container.portBindings().isEmpty()) {
@@ -277,8 +275,10 @@ public class DockerContainerView implements MessageView {
             }
         }
 
-        EditMessageText containerInfo = new EditMessageBuilder(callbackQuery)
-                .withMessageText("""
+        EditMessageText containerInfo = TelegramMessageFactory.buildEditMessage(
+                context.chatId(),
+                context.messageId(),
+                """
                         *Docker-контейнер*
                         `%s`
 
@@ -292,18 +292,17 @@ public class DockerContainerView implements MessageView {
                         container.id(),
                         String.join(", ", container.networks()),
                         sb.toString()
-                ))
-                .withReplyMarkup(keyboardMarkup)
-                .build();
+                ),
+                keyboard);
 
         send(containerInfo);
     }
 
     private void displayLogsMenu(
-            CallbackQuery callbackQuery,
+            MessageContext context,
             DockerContainer container) {
 
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
+        InlineKeyboardMarkup keyboard = new InlineKeyboardBuilder()
                 .addButton("За сутки", buildContainerCallbackData(container.id(), LOGS_ACTION + "d"))
                 .nextRow()
                 .addButton("За неделю", buildContainerCallbackData(container.id(), LOGS_ACTION + "w"))
@@ -313,77 +312,81 @@ public class DockerContainerView implements MessageView {
                 .addButton(BACK_EMOJI + " Назад", buildContainerCallbackData(container.id(), "0"))
                 .build();
 
-        EditMessageText logsMenu = new EditMessageBuilder(callbackQuery)
-                .withMessageText("""
+        EditMessageText logsMenu = TelegramMessageFactory.buildEditMessage(
+                context.chatId(),
+                context.messageId(),
+                """
                         *Docker-контейнер*
                         `%s`
                                     
                         За какой период требуется собрать логи?
-                        """.formatted(container.names()))
-                .withReplyMarkup(keyboardMarkup)
-                .build();
+                        """.formatted(container.names()),
+                keyboard);
 
         send(logsMenu);
     }
 
     private void displayContainerActionConfirmation(
-            CallbackQuery callbackQuery,
+            MessageContext context,
             DockerContainer container,
             String action,
             String text) {
 
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
+        InlineKeyboardMarkup keyboard = new InlineKeyboardBuilder()
                 .addButton("Да", buildContainerCallbackData(container.id(), action + "!"))
                 .addButton("Отмена", buildContainerCallbackData(container.id(), "0"))
                 .build();
 
-        EditMessageText restartConfirmation = new EditMessageBuilder(callbackQuery)
-                .withMessageText(text)
-                .withReplyMarkup(keyboardMarkup)
-                .build();
+        EditMessageText restartConfirmation = TelegramMessageFactory.buildEditMessage(
+                context.chatId(),
+                context.messageId(),
+                text,
+                keyboard);
 
         send(restartConfirmation);
     }
 
     private void displayContainerActionMessage(
-            CallbackQuery callbackQuery,
+            MessageContext context,
             DockerContainer container,
             String text) {
 
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
+        InlineKeyboardMarkup keyboard = new InlineKeyboardBuilder()
                 .addButton("Назад", buildContainerCallbackData(container.id(), "0"))
                 .build();
 
-        EditMessageText containerActionMessage = new EditMessageBuilder(callbackQuery)
-                .withMessageText(text)
-                .withReplyMarkup(keyboardMarkup)
-                .build();
+        EditMessageText containerActionMessage = TelegramMessageFactory.buildEditMessage(
+                context.chatId(),
+                context.messageId(),
+                text,
+                keyboard);
 
         send(containerActionMessage);
     }
 
     private void displayContainerNotFoundMessage(
-            CallbackQuery callbackQuery,
+            MessageContext context,
             String containerId) {
 
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardBuilder()
+        InlineKeyboardMarkup keyboard = new InlineKeyboardBuilder()
                 .addButton(BACK_EMOJI + " К списку контейнеров...", DOCKER_CONTAINERS_MENU_SELECTOR)
                 .build();
 
-        EditMessageText containerNotFoundMessage = new EditMessageBuilder(callbackQuery)
-                .withMessageText("""
+        EditMessageText containerNotFoundMessage = TelegramMessageFactory.buildEditMessage(
+                context.chatId(),
+                context.messageId(),
+                """
                         *Docker-контейнер с ID*
                         `%s`
                         *не найден!*
-                        """.formatted(containerId))
-                .withReplyMarkup(keyboardMarkup)
-                .build();
+                        """.formatted(containerId),
+                keyboard);
 
         send(containerNotFoundMessage);
     }
 
     private void displayContainerNotModifiedMessage(
-            CallbackQuery callbackQuery,
+            MessageContext context,
             String containerId,
             String text) {
 
@@ -391,10 +394,11 @@ public class DockerContainerView implements MessageView {
                 .addButton(BACK_EMOJI + " Назад", buildContainerCallbackData(containerId, "0"))
                 .build();
 
-        EditMessageText containerNotFoundMessage = new EditMessageBuilder(callbackQuery)
-                .withMessageText(text)
-                .withReplyMarkup(keyboardMarkup)
-                .build();
+        EditMessageText containerNotFoundMessage = TelegramMessageFactory.buildEditMessage(
+                context.chatId(),
+                context.messageId(),
+                text,
+                keyboardMarkup);
 
         send(containerNotFoundMessage);
     }

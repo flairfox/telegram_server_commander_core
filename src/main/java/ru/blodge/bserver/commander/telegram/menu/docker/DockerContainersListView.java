@@ -3,15 +3,15 @@ package ru.blodge.bserver.commander.telegram.menu.docker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.blodge.bserver.commander.model.DockerContainerLite;
 import ru.blodge.bserver.commander.services.DockerService;
 import ru.blodge.bserver.commander.telegram.CommanderBot;
+import ru.blodge.bserver.commander.telegram.menu.MessageContext;
 import ru.blodge.bserver.commander.telegram.menu.MessageView;
-import ru.blodge.bserver.commander.utils.builders.EditMessageBuilder;
 import ru.blodge.bserver.commander.utils.builders.InlineKeyboardBuilder;
+import ru.blodge.bserver.commander.utils.factories.TelegramMessageFactory;
 
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.*;
 import static ru.blodge.bserver.commander.utils.Emoji.BACK_EMOJI;
@@ -22,7 +22,7 @@ public class DockerContainersListView implements MessageView {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainersListView.class);
 
     @Override
-    public void display(CallbackQuery callbackQuery) {
+    public void display(MessageContext context) {
 
         InlineKeyboardBuilder keyboardBuilder = new InlineKeyboardBuilder();
         for (DockerContainerLite container : DockerService.instance().getContainers()) {
@@ -31,19 +31,20 @@ public class DockerContainersListView implements MessageView {
                     .nextRow();
         }
 
-        InlineKeyboardMarkup keyboardMarkup = keyboardBuilder
+        InlineKeyboardMarkup keyboard = keyboardBuilder
                 .addButton(REFRESH_EMOJI + " Обновить", DOCKER_CONTAINERS_MENU_SELECTOR)
                 .addButton(BACK_EMOJI + " Назад", MAIN_MENU_SELECTOR)
                 .build();
 
-        EditMessageText dockerContainers = new EditMessageBuilder(callbackQuery)
-                .withMessageText("""
+        EditMessageText dockerContainers = TelegramMessageFactory.buildEditMessage(
+                context.chatId(),
+                context.messageId(),
+                """
                         *Docker-контейнеры*
                                         
                         Вот какие контейнеры я нашел:
-                        """)
-                .withReplyMarkup(keyboardMarkup)
-                .build();
+                        """,
+                keyboard);
 
         try {
             CommanderBot.instance().execute(dockerContainers);
