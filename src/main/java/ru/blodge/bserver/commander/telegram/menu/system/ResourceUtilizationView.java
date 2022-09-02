@@ -41,8 +41,10 @@ public class ResourceUtilizationView implements MessageView {
                     """
                             *Использование ресурсов*
                                             
-                            *CPU:*\t`%s`
-                            *RAM:*\t`%s`
+                            *CPU:*
+                            `%s`
+                            *RAM:*
+                            `%s`
                             """.formatted(
                             displayProgressbar(resourceUtilizationInfo.cpuUtilization()),
                             displayProgressbar(resourceUtilizationInfo.memoryUtilization())),
