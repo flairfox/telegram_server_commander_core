@@ -59,19 +59,19 @@ public class ResourceUtilizationView implements MessageView {
     }
 
     private String displayProgressbar(float value) {
-        StringBuilder result = new StringBuilder()
-                .append("[");
+        StringBuilder result = new StringBuilder();
 
         int normalizedValue = Math.round(value / 5);
         for (int i = 0; i < 20; i++) {
             if (normalizedValue > i) {
-                result.append("#");
+                result.append("█");
             } else {
-                result.append("-");
+                result.append("▒");
             }
         }
 
-        return result.append("] ")
+        return result
+                .append(" ")
                 .append(value)
                 .append("%")
                 .toString();
