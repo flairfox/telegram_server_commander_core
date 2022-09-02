@@ -3,7 +3,7 @@ package ru.blodge.bserver.commander.telegram.menu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import ru.blodge.bserver.commander.telegram.menu.docker.DockerContainerView;
+import ru.blodge.bserver.commander.telegram.menu.docker.DockerContainerInfoView;
 import ru.blodge.bserver.commander.telegram.menu.docker.DockerContainersListView;
 
 import java.util.Arrays;
@@ -20,7 +20,7 @@ public class MenuRouter {
     private static final Map<String, MessageView> viewSelectorMap = Map.of(
             MAIN_MENU_SELECTOR, new MainMenuView(),
             DOCKER_CONTAINERS_MENU_SELECTOR, new DockerContainersListView(),
-            DOCKER_CONTAINER_MENU_SELECTOR, new DockerContainerView()
+            DOCKER_CONTAINER_MENU_SELECTOR, new DockerContainerInfoView()
     );
 
     private MenuRouter() {

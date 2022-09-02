@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.blodge.bserver.commander.model.DockerContainer;
+import ru.blodge.bserver.commander.model.DockerContainerInfo;
 import ru.blodge.bserver.commander.services.DockerService;
 import ru.blodge.bserver.commander.telegram.CommanderBot;
 import ru.blodge.bserver.commander.telegram.menu.MessageContext;
@@ -34,9 +34,9 @@ import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DOCKER_CONTAI
 import static ru.blodge.bserver.commander.utils.Emoji.BACK_EMOJI;
 import static ru.blodge.bserver.commander.utils.Emoji.REFRESH_EMOJI;
 
-public class DockerContainerView implements MessageView {
+public class DockerContainerInfoView implements MessageView {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainerView.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainerInfoView.class);
 
     private static final String RESTART_CONFIRMATION_TEXT = """
             *Docker-контейнер*
@@ -96,7 +96,7 @@ public class DockerContainerView implements MessageView {
         String containerId = context.args()[0];
         String action = context.args()[1];
 
-        DockerContainer container;
+        DockerContainerInfo container;
         try {
             container = DockerService.instance().getContainer(containerId);
         } catch (NotFoundException e) {
@@ -212,7 +212,7 @@ public class DockerContainerView implements MessageView {
 
     private void sendLogs(
             MessageContext context,
-            DockerContainer container,
+            DockerContainerInfo container,
             String periodLiteral) {
 
         int logsPeriod = switch (periodLiteral) {
@@ -237,7 +237,7 @@ public class DockerContainerView implements MessageView {
 
     private void displayContainerInfo(
             MessageContext context,
-            DockerContainer container) {
+            DockerContainerInfo container) {
 
         InlineKeyboardBuilder keyboardBuilder = new InlineKeyboardBuilder();
         if (container.status().isRunning()) {
@@ -256,24 +256,16 @@ public class DockerContainerView implements MessageView {
                     .nextRow();
         }
 
-
         keyboardBuilder
                 .addButton(REFRESH_EMOJI + " Обновить", buildContainerCallbackData(container.id(), "d"))
                 .addButton(BACK_EMOJI + " Назад", DOCKER_CONTAINERS_MENU_SELECTOR);
 
         InlineKeyboardMarkup keyboard = keyboardBuilder.build();
 
-        StringBuilder sb = new StringBuilder();
-        if (container.portBindings().isEmpty()) {
-            sb.append("нет");
-        } else {
-            for (String containerPort : container.portBindings().keySet()) {
-                sb.append(containerPort)
-                        .append(" -> ")
-                        .append(String.join(", ", container.portBindings().get(containerPort)))
-                        .append("\n");
-            }
-        }
+        String containerNetworks = container.networks().isEmpty() ?
+                "-" : String.join(", ", container.networks());
+        String containerPortBindings = container.portBindings().isEmpty() ?
+                "-" : String.join("\n", container.portBindings());
 
         EditMessageText containerInfo = TelegramMessageFactory.buildEditMessage(
                 context.chatId(),
@@ -290,9 +282,8 @@ public class DockerContainerView implements MessageView {
                         container.names(),
                         container.status().statusEmoji() + " " + container.status().statusDuration(),
                         container.id(),
-                        String.join(", ", container.networks()),
-                        sb.toString()
-                ),
+                        containerNetworks,
+                        containerPortBindings),
                 keyboard);
 
         send(containerInfo);
@@ -300,7 +291,7 @@ public class DockerContainerView implements MessageView {
 
     private void displayLogsMenu(
             MessageContext context,
-            DockerContainer container) {
+            DockerContainerInfo container) {
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardBuilder()
                 .addButton("За сутки", buildContainerCallbackData(container.id(), LOGS_ACTION + "d"))
@@ -328,7 +319,7 @@ public class DockerContainerView implements MessageView {
 
     private void displayContainerActionConfirmation(
             MessageContext context,
-            DockerContainer container,
+            DockerContainerInfo container,
             String action,
             String text) {
 
@@ -348,7 +339,7 @@ public class DockerContainerView implements MessageView {
 
     private void displayContainerActionMessage(
             MessageContext context,
-            DockerContainer container,
+            DockerContainerInfo container,
             String text) {
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardBuilder()
@@ -427,14 +418,14 @@ public class DockerContainerView implements MessageView {
         private final long chatId;
 
         private final String periodLiteral;
-        private final DockerContainer container;
+        private final DockerContainerInfo container;
         private Path tempFilePath;
         private BufferedWriter bufferedWriterWriter;
 
         public LogsResultCallback(
                 long chatId,
                 String periodLiteral,
-                DockerContainer container) {
+                DockerContainerInfo container) {
             this.chatId = chatId;
             this.periodLiteral = periodLiteral;
             this.container = container;

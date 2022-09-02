@@ -14,8 +14,8 @@ import com.github.dockerjava.transport.DockerHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.blodge.bserver.commander.mappers.DockerContainerMapper;
+import ru.blodge.bserver.commander.model.DockerContainerInfo;
 import ru.blodge.bserver.commander.model.DockerContainer;
-import ru.blodge.bserver.commander.model.DockerContainerLite;
 
 import java.util.List;
 
@@ -70,10 +70,10 @@ public class DockerService {
         }
     }
 
-    public DockerContainer getContainer(String containerId) throws NotFoundException {
+    public DockerContainerInfo getContainer(String containerId) throws NotFoundException {
         LOGGER.debug("Inspecting container with ID {}", containerId);
         try (InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(containerId)) {
-            return containerMapper.toDockerContainer(inspectContainerCmd.exec());
+            return containerMapper.toDockerContainerInfo(inspectContainerCmd.exec());
         }
     }
 
@@ -94,7 +94,7 @@ public class DockerService {
         }
     }
 
-    public List<DockerContainerLite> getContainers() {
+    public List<DockerContainer> getContainers() {
         LOGGER.debug("Listing all containers");
         try (ListContainersCmd listContainersCmd = dockerClient.listContainersCmd().withShowAll(true)) {
             return listContainersCmd.exec().stream()

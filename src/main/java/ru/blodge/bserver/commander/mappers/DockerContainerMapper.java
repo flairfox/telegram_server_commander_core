@@ -5,7 +5,7 @@ import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Ports;
 import ru.blodge.bserver.commander.model.DockerContainer;
-import ru.blodge.bserver.commander.model.DockerContainerLite;
+import ru.blodge.bserver.commander.model.DockerContainerInfo;
 import ru.blodge.bserver.commander.model.DockerContainerStatus;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import static ru.blodge.bserver.commander.utils.TimeUtils.getDuration;
 
 public class DockerContainerMapper {
 
-    public DockerContainerLite toDockerContainer(Container container) {
+    public DockerContainer toDockerContainer(Container container) {
         boolean isRunning;
         String statusEmoji;
         String statusCaption;
@@ -37,7 +37,7 @@ public class DockerContainerMapper {
                 .map(name -> name.startsWith("/") ? name.substring(1) : name)
                 .toList();
 
-        return new DockerContainerLite(
+        return new DockerContainer(
                 String.join(", ", names),
                 container.getId().substring(0, 12),
                 new DockerContainerStatus(
@@ -49,13 +49,13 @@ public class DockerContainerMapper {
         );
     }
 
-    public DockerContainer toDockerContainer(InspectContainerResponse container) {
+    public DockerContainerInfo toDockerContainerInfo(InspectContainerResponse container) {
         String name = container.getName().startsWith("/") ? container.getName().substring(1) : container.getName();
         Set<String> networks = container.getNetworkSettings().getNetworks().keySet();
-        Map<String, Set<String>> portBindings = buildPortBindings(container);
+        Set<String> portBindings = buildPortBindings(container);
 
 
-        return new DockerContainer(
+        return new DockerContainerInfo(
                 name,
                 container.getId().substring(0, 12),
                 portBindings,
@@ -64,20 +64,26 @@ public class DockerContainerMapper {
         );
     }
 
-    private Map<String, Set<String>> buildPortBindings(InspectContainerResponse container) {
-        Map<String, Set<String>> result = new HashMap<>();
+    private Set<String> buildPortBindings(InspectContainerResponse container) {
+        Set<String> result = new HashSet<>();
 
         if (container.getHostConfig().getPortBindings() == null) {
             return result;
         }
 
         Map<ExposedPort, Ports.Binding[]> bindings = container.getHostConfig().getPortBindings().getBindings();
-        for (ExposedPort exposedPort : bindings.keySet()) {
-            Set<String> ports = Arrays.stream(bindings.get(exposedPort))
+        for (ExposedPort containerPort : bindings.keySet()) {
+            Set<String> hostPorts = Arrays.stream(bindings.get(containerPort))
                     .map(Ports.Binding::getHostPortSpec)
                     .collect(Collectors.toSet());
 
-            result.put(exposedPort.getPort() + "/" + exposedPort.getProtocol().name(), ports);
+            String portBinding = String.join(", ", hostPorts) +
+                    " -> " +
+                    containerPort.getPort() +
+                    "/" +
+                    containerPort.getProtocol().name();
+
+            result.add(portBinding);
         }
 
         return result;
