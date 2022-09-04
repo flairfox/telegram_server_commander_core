@@ -53,6 +53,8 @@ public class DrivesInfoView implements MessageView {
                     """
                             *Информация о дисках*
                                                         
+                            Вот такие устройства хранения я нашел в твоей системе:
+                                                        
                             %s
                             """.formatted(drivesInformation),
                     keyboard);

@@ -47,6 +47,10 @@ public class ResourceUtilizationView implements MessageView {
                     context.chatId(),
                     context.messageId(),
                     """
+                            *Утилизация CPU, RAM и SWAP*
+                                                        
+                            Вот так загружена твоя система:
+                                                        
                             *CPU:*
                             `%s`
                             *RAM:*
