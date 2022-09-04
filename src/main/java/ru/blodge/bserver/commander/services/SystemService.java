@@ -2,11 +2,13 @@ package ru.blodge.bserver.commander.services;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+import ru.blodge.bserver.commander.model.system.DriveInfo;
 import ru.blodge.bserver.commander.model.system.ResourceUtilizationInfo;
 import ru.blodge.bserver.commander.model.system.SystemInfo;
 import ru.blodge.bserver.commander.retrofit.SystemInfoApi;
 
 import java.io.IOException;
+import java.util.List;
 
 import static ru.blodge.bserver.commander.configuration.TelegramBotConfig.SYSTEM_INFO_HOST;
 
@@ -37,6 +39,12 @@ public class SystemService {
 
     public ResourceUtilizationInfo getResourceUtilizationInfo() throws IOException {
         return systemInfoApi.getResourceUtilizationInfo()
+                .execute()
+                .body();
+    }
+
+    public List<DriveInfo> getDrivesInfo() throws IOException {
+        return systemInfoApi.getDrivesInfo()
                 .execute()
                 .body();
     }

@@ -31,8 +31,20 @@ def getResourceUtilizationInfo():
 
 def getDrivesInfo():
     try:
-        info={}
-        info['drives']=psutil.disk_partitions(all=False)
+        info=[]
+        disk_partitions=psutil.disk_partitions(all=True)
+        for disk_partition in disk_partitions:
+            disk_usage=psutil.disk_usage(disk_partition.mountpoint)
+
+            drive_info={}
+            drive_info['mount-point']=disk_partition.mountpoint
+            drive_info['total']=disk_usage.total
+            drive_info['used']=disk_usage.used
+            drive_info['free']=disk_usage.free
+            drive_info['percent']=disk_usage.percent
+
+            info.append(drive_info)
+
         return json.dumps(info)
     except Exception as e:
         logging.exception(e)
