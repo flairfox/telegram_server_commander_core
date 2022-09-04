@@ -31,7 +31,7 @@ public class MenuCommandHandler implements UpdateHandler {
                 """);
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardBuilder()
-                .addButton("Утилизации CPU, RAM и SWAP", RESOURCE_UTILIZATION_MENU_SELECTOR)
+                .addButton("CPU, RAM и SWAP", RESOURCE_UTILIZATION_MENU_SELECTOR)
                 .nextRow()
                 .addButton("Docker-контейнерах", DOCKER_CONTAINERS_MENU_SELECTOR)
                 .build();
