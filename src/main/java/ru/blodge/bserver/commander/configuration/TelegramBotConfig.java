@@ -1,8 +1,13 @@
 package ru.blodge.bserver.commander.configuration;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class TelegramBotConfig {
 
-    public static final long ADMIN_USER_ID = Long.parseLong(System.getenv("ADMIN_USER_ID"));
+    public static final List<Long> ADMIN_USERS_IDS = Arrays.stream(System.getenv("ADMIN_USER_ID").split(","))
+            .map(Long::parseLong)
+            .toList();
     public static final String TELEGRAM_BOT_TOKEN = System.getenv("TELEGRAM_BOT_TOKEN");
     public static final String TELEGRAM_BOT_USERNAME = System.getenv("TELEGRAM_BOT_USERNAME");
     public static final String DOCKER_HOST = System.getenv("DOCKER_HOST");

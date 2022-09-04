@@ -29,6 +29,14 @@ def getResourceUtilizationInfo():
     except Exception as e:
         logging.exception(e)
 
+def getDrivesInfo():
+    try:
+        info={}
+        info['drives']=psutil.disk_partitions(all=False)
+        return json.dumps(info)
+    except Exception as e:
+        logging.exception(e)
+
 @app.route('/sysinfo', methods=['GET'])
 def get_system_info():
     return getSystemInfo()
@@ -36,6 +44,11 @@ def get_system_info():
 @app.route('/utilization', methods=['GET'])
 def get_resource_utilization_info():
     return getResourceUtilizationInfo()
+
+@app.route('/drives', methods=['GET'])
+def get_drives_info():
+    return getDrivesInfo()
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port='5001', debug=True)

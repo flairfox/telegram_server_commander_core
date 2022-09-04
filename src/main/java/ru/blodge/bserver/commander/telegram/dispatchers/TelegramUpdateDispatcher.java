@@ -7,7 +7,7 @@ import ru.blodge.bserver.commander.telegram.handlers.AccessDeniedErrorHandler;
 import ru.blodge.bserver.commander.telegram.handlers.CallbackQueryHandler;
 import ru.blodge.bserver.commander.telegram.handlers.UpdateHandler;
 
-import static ru.blodge.bserver.commander.configuration.TelegramBotConfig.ADMIN_USER_ID;
+import static ru.blodge.bserver.commander.configuration.TelegramBotConfig.ADMIN_USERS_IDS;
 
 public class TelegramUpdateDispatcher implements UpdateDispatcher {
 
@@ -23,7 +23,8 @@ public class TelegramUpdateDispatcher implements UpdateDispatcher {
         if (update.hasMessage()) {
 
             // Сообщение пришло НЕ от администратора
-            if (update.getMessage().getFrom().getId() != ADMIN_USER_ID) {
+            long userId = update.getMessage().getFrom().getId();
+            if (!ADMIN_USERS_IDS.contains(userId)) {
                 accessDeniedErrorHandler.handle(update);
                 return;
             }
