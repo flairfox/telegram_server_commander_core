@@ -22,8 +22,9 @@ def getSystemInfo():
 def getResourceUtilizationInfo():
     try:
         info={}
-        info['cpu-utilization']=psutil.cpu_percent()
+        info['cpu-utilization']=psutil.cpu_percent(interval=None, percpu=True)
         info['memory-utilization']=psutil.virtual_memory().percent
+        info['swap-utilization']=psutil.swap_memory().percent
         return json.dumps(info)
     except Exception as e:
         logging.exception(e)

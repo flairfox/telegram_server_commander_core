@@ -35,19 +35,30 @@ public class ResourceUtilizationView implements MessageView {
         try {
             ResourceUtilizationInfo resourceUtilizationInfo = SystemService.instance().getResourceUtilizationInfo();
 
+            StringBuilder perCoreUtilization = new StringBuilder();
+            for (int i = 0; i < resourceUtilizationInfo.cpuUtilization().length; i++) {
+                perCoreUtilization.append("\tC" + i + " ")
+                        .append(displayProgressbar(resourceUtilizationInfo.cpuUtilization()[i]))
+                        .append("\n");
+            }
+
             EditMessageText mainMenuMessage = TelegramMessageFactory.buildEditMessage(
                     context.chatId(),
                     context.messageId(),
                     """
-                            *Использование ресурсов*
+                            *Утилизация ресурсов*
                                             
                             *CPU:*
                             `%s`
                             *RAM:*
                             `%s`
+                                                        
+                            *SWAP:*
+                            `%s`
                             """.formatted(
-                            displayProgressbar(resourceUtilizationInfo.cpuUtilization()),
-                            displayProgressbar(resourceUtilizationInfo.memoryUtilization())),
+                            perCoreUtilization,
+                            displayProgressbar(resourceUtilizationInfo.memoryUtilization()),
+                            displayProgressbar(resourceUtilizationInfo.swapUtilization())),
                     keyboard);
 
             CommanderBot.instance().execute(mainMenuMessage);

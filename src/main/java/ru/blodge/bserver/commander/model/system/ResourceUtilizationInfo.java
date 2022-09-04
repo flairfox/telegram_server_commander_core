@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record ResourceUtilizationInfo(
         @JsonProperty("cpu-utilization")
-        float cpuUtilization,
+        float[] cpuUtilization,
         @JsonProperty("memory-utilization")
-        float memoryUtilization
+        float memoryUtilization,
+
+        @JsonProperty("swap-utilization")
+        float swapUtilization
 ) {}

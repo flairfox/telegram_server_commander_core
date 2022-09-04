@@ -19,9 +19,7 @@ public class MainMenuView implements MessageView {
     public void display(MessageContext context) {
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardBuilder()
-                .addButton("Системе", SYSTEM_INFO_MENU_SELECTOR)
-                .nextRow()
-                .addButton("Системных ресурсах", RESOURCE_UTILIZATION_MENU_SELECTOR)
+                .addButton("Утилизации CPU, RAM и SWAP", RESOURCE_UTILIZATION_MENU_SELECTOR)
                 .nextRow()
                 .addButton("Docker-контейнерах", DOCKER_CONTAINERS_MENU_SELECTOR)
                 .build();
