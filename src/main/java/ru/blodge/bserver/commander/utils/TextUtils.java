@@ -3,9 +3,9 @@ package ru.blodge.bserver.commander.utils;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 
-public class Text {
+public class TextUtils {
 
-    private Text() {}
+    private TextUtils() {}
 
     public static String asciiProgressBar(float value) {
         StringBuilder result = new StringBuilder();
@@ -27,15 +27,15 @@ public class Text {
     }
 
     public static String humanReadableByteCountSI(long bytes) {
-        if (-1000 < bytes && bytes < 1000) {
+        if (-1024 < bytes && bytes < 1024) {
             return bytes + " B";
         }
         CharacterIterator ci = new StringCharacterIterator("kMGTPE");
         while (bytes <= -999_950 || bytes >= 999_950) {
-            bytes /= 1000;
+            bytes /= 1024;
             ci.next();
         }
-        return String.format("%.1f %cB", bytes / 1000.0, ci.current());
+        return String.format("%.1f %cB", bytes / 1024.0, ci.current());
     }
 
 }

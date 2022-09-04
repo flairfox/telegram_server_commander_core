@@ -20,8 +20,8 @@ import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.DRIVES_INFO_M
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.MAIN_MENU_SELECTOR;
 import static ru.blodge.bserver.commander.utils.Emoji.BACK_EMOJI;
 import static ru.blodge.bserver.commander.utils.Emoji.REFRESH_EMOJI;
-import static ru.blodge.bserver.commander.utils.Text.asciiProgressBar;
-import static ru.blodge.bserver.commander.utils.Text.humanReadableByteCountSI;
+import static ru.blodge.bserver.commander.utils.TextUtils.asciiProgressBar;
+import static ru.blodge.bserver.commander.utils.TextUtils.humanReadableByteCountSI;
 
 public class DrivesInfoView implements MessageView {
 

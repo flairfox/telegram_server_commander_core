@@ -19,7 +19,7 @@ import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.MAIN_MENU_SEL
 import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.RESOURCE_UTILIZATION_MENU_SELECTOR;
 import static ru.blodge.bserver.commander.utils.Emoji.BACK_EMOJI;
 import static ru.blodge.bserver.commander.utils.Emoji.REFRESH_EMOJI;
-import static ru.blodge.bserver.commander.utils.Text.asciiProgressBar;
+import static ru.blodge.bserver.commander.utils.TextUtils.asciiProgressBar;
 
 public class ResourceUtilizationView implements MessageView {
 
