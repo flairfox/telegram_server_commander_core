@@ -58,7 +58,7 @@ public class ResourceUtilizationView implements MessageView {
                                                         
                             *SWAP:*
                             `%s`
-                            """.formatted(
+                            """.formatted( // todo по аналогии с информацией о дисках вывести общий объем и свободный для RAM и SWAP
                             perCoreUtilization,
                             asciiProgressBar(resourceUtilizationInfo.memoryUtilization()),
                             asciiProgressBar(resourceUtilizationInfo.swapUtilization())),

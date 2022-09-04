@@ -20,6 +20,7 @@ import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.SYSTEM_INFO_M
 import static ru.blodge.bserver.commander.utils.Emoji.BACK_EMOJI;
 import static ru.blodge.bserver.commander.utils.Emoji.REFRESH_EMOJI;
 
+@Deprecated
 public class SystemInfoView implements MessageView {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SystemInfoView.class);
