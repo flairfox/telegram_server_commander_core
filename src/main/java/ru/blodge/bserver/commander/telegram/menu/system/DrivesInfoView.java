@@ -43,7 +43,8 @@ public class DrivesInfoView implements MessageView {
                 drivesInformation.append("*").append(driveInfo.mountPoint()).append("*")
                         .append("\n")
                         .append("`").append(asciiProgressBar(driveInfo.percent())).append("`")
-                        .append("\n").append(humanReadableByteCountSI(driveInfo.free())).append(" свободно из ").append(humanReadableByteCountSI(driveInfo.total()))
+                        .append("\n")
+                        .append("`").append(humanReadableByteCountSI(driveInfo.free())).append(" свободно из ").append(humanReadableByteCountSI(driveInfo.total())).append("`")
                         .append("\n");
             }
 
