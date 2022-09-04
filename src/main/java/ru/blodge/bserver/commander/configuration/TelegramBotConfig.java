@@ -6,6 +6,7 @@ import java.util.List;
 public class TelegramBotConfig {
 
     public static final List<Long> ADMIN_USERS_IDS = Arrays.stream(System.getenv("ADMIN_USERS_IDS").split(","))
+            .map(String::trim)
             .map(Long::parseLong)
             .toList();
     public static final String TELEGRAM_BOT_TOKEN = System.getenv("TELEGRAM_BOT_TOKEN");
