@@ -6,8 +6,7 @@ public record ResourceUtilizationInfo(
         @JsonProperty("cpu-utilization")
         float[] cpuUtilization,
         @JsonProperty("memory-utilization")
-        float memoryUtilization,
-
+        MemoryUtilization memoryUtilization,
         @JsonProperty("swap-utilization")
-        float swapUtilization
+        MemoryUtilization swapUtilization
 ) {}

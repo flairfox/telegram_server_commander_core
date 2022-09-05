@@ -23,8 +23,23 @@ def getResourceUtilizationInfo():
     try:
         info={}
         info['cpu-utilization']=psutil.cpu_percent(interval=None, percpu=True)
-        info['memory-utilization']=psutil.virtual_memory().percent
-        info['swap-utilization']=psutil.swap_memory().percent
+
+        virtual_memory=psutil.virtual_memory()
+        memory_utilization={}
+        memory_utilization['total']=virtual_memory.total
+        memory_utilization['used']=virtual_memory.used
+        memory_utilization['free']=virtual_memory.free
+        memory_utilization['percent']=virtual_memory.percent
+        info['memory-utilization']=memory_utilization
+
+        swap_memory=psutil.swap_memory()
+        swap_utilization={}
+        swap_utilization['total']=swap_memory.total
+        swap_utilization['used']=swap_memory.used
+        swap_utilization['free']=swap_memory.free
+        swap_utilization['percent']=swap_memory.percent
+        info['swap-utilization']=swap_utilization
+
         return json.dumps(info)
     except Exception as e:
         logging.exception(e)
