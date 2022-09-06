@@ -47,7 +47,7 @@ def getResourceUtilizationInfo():
 def getDrivesInfo():
     try:
         info=[]
-        disk_partitions=psutil.disk_partitions(all=True)
+        disk_partitions=psutil.disk_partitions()
         for disk_partition in disk_partitions:
             disk_usage=psutil.disk_usage(disk_partition.mountpoint)
 
