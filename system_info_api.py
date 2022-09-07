@@ -66,16 +66,17 @@ def getDrivesInfo():
         info = []
         disk_partitions = psutil.disk_partitions()
         for disk_partition in disk_partitions:
-            disk_usage = psutil.disk_usage(disk_partition.mountpoint)
+            if not disk_partition.mountpoint.startswith('/snap'):
+                disk_usage = psutil.disk_usage(disk_partition.mountpoint)
 
-            drive_info = {}
-            drive_info['mount-point'] = disk_partition.mountpoint
-            drive_info['total'] = disk_usage.total
-            drive_info['used'] = disk_usage.used
-            drive_info['free'] = disk_usage.free
-            drive_info['percent'] = disk_usage.percent
+                drive_info = {}
+                drive_info['mount-point'] = disk_partition.mountpoint
+                drive_info['total'] = disk_usage.total
+                drive_info['used'] = disk_usage.used
+                drive_info['free'] = disk_usage.free
+                drive_info['percent'] = disk_usage.percent
 
-            info.append(drive_info)
+                info.append(drive_info)
 
         return json.dumps(info)
     except Exception as e:
