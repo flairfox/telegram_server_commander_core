@@ -38,13 +38,6 @@ public class ResourceUtilizationView implements MessageView {
         try {
             ResourceUtilizationInfo resourceUtilizationInfo = SystemService.instance().getResourceUtilizationInfo();
 
-            StringBuilder perCoreUtilization = new StringBuilder();
-            for (int i = 0; i < resourceUtilizationInfo.cpuUtilization().length; i++) {
-                perCoreUtilization.append("\tC").append(i).append(" ")
-                        .append(asciiProgressBar(resourceUtilizationInfo.cpuUtilization()[i]))
-                        .append("\n");
-            }
-
             EditMessageText mainMenuMessage = TelegramMessageFactory.buildEditMessage(
                     context.chatId(),
                     context.messageId(),
@@ -55,12 +48,15 @@ public class ResourceUtilizationView implements MessageView {
                                                         
                             *CPU:*
                             `%s`
+                            `Температура: %s°C`
+                            
                             *RAM:*
                             `%s`
                             *SWAP:*
                             `%s`
-                            """.formatted( // todo по аналогии с информацией о дисках вывести общий объем и свободный для RAM и SWAP
-                            perCoreUtilization,
+                            """.formatted(
+                            asciiProgressBar(resourceUtilizationInfo.cpuUtilization().cpuLoadPercent()),
+                            resourceUtilizationInfo.cpuUtilization().cpuTemperature(),
                             displayMemoryUtilization(resourceUtilizationInfo.memoryUtilization()),
                             displayMemoryUtilization(resourceUtilizationInfo.swapUtilization())),
                     keyboard);
