@@ -5,9 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.blodge.bserver.commander.telegram.menu.docker.DockerContainerInfoView;
 import ru.blodge.bserver.commander.telegram.menu.docker.DockerContainersListView;
-import ru.blodge.bserver.commander.telegram.menu.system.DrivesInfoView;
-import ru.blodge.bserver.commander.telegram.menu.system.ResourceUtilizationView;
-import ru.blodge.bserver.commander.telegram.menu.system.SystemInfoView;
+import ru.blodge.bserver.commander.telegram.menu.system.*;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -22,6 +20,8 @@ public class MenuRouter {
     public static final String SYSTEM_INFO_MENU_SELECTOR = "4";
     public static final String RESOURCE_UTILIZATION_MENU_SELECTOR = "5";
     public static final String DRIVES_INFO_MENU_SELECTOR = "6";
+    public static final String REBOOT_MENU_SELECTOR = "7";
+    public static final String SHUTDOWN_MENU_SELECTOR = "8";
 
     private static final Map<String, MessageView> viewSelectorMap = Map.of(
             MAIN_MENU_SELECTOR, new MainMenuView(),
@@ -29,7 +29,9 @@ public class MenuRouter {
             DOCKER_CONTAINER_INFO_MENU_SELECTOR, new DockerContainerInfoView(),
             SYSTEM_INFO_MENU_SELECTOR, new SystemInfoView(),
             RESOURCE_UTILIZATION_MENU_SELECTOR, new ResourceUtilizationView(),
-            DRIVES_INFO_MENU_SELECTOR, new DrivesInfoView()
+            DRIVES_INFO_MENU_SELECTOR, new DrivesInfoView(),
+            REBOOT_MENU_SELECTOR, new RebootMenuView(),
+            SHUTDOWN_MENU_SELECTOR, new ShutdownMenuView()
     );
 
     private MenuRouter() {

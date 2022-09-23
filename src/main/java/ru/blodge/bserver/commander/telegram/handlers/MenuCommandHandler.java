@@ -35,6 +35,10 @@ public class MenuCommandHandler implements UpdateHandler {
                 .addButton("Дисках", DRIVES_INFO_MENU_SELECTOR)
                 .nextRow()
                 .addButton("Docker-контейнерах", DOCKER_CONTAINERS_MENU_SELECTOR)
+                .nextRow()
+                .addButton("Перезагрузить", REBOOT_MENU_SELECTOR)
+                .nextRow()
+                .addButton("Выключить", SHUTDOWN_MENU_SELECTOR)
                 .build();
 
         mainMenuMessage.setReplyMarkup(keyboard);

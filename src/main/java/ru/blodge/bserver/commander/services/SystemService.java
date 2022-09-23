@@ -49,4 +49,14 @@ public class SystemService {
                 .body();
     }
 
+    public void reboot() throws IOException {
+        systemInfoApi.reboot()
+                .execute();
+    }
+
+    public void shutdown() throws IOException {
+        systemInfoApi.shutdown()
+                .execute();
+    }
+
 }

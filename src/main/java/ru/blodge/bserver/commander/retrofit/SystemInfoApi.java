@@ -19,4 +19,10 @@ public interface SystemInfoApi {
     @GET("/drives")
     Call<List<DriveInfo>> getDrivesInfo();
 
+    @GET("/reboot")
+    Call<Void> reboot();
+
+    @GET("/shutdown")
+    Call<Void> shutdown();
+
 }

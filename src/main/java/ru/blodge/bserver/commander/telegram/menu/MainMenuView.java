@@ -24,6 +24,10 @@ public class MainMenuView implements MessageView {
                 .addButton("Дисках", DRIVES_INFO_MENU_SELECTOR)
                 .nextRow()
                 .addButton("Docker-контейнерах", DOCKER_CONTAINERS_MENU_SELECTOR)
+                .nextRow()
+                .addButton("Перезагрузить", REBOOT_MENU_SELECTOR)
+                .nextRow()
+                .addButton("Выключить", SHUTDOWN_MENU_SELECTOR)
                 .build();
 
         EditMessageText mainMenuMessage = TelegramMessageFactory.buildEditMessage(
