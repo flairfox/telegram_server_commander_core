@@ -15,8 +15,7 @@ import ru.blodge.bserver.commander.utils.factories.TelegramMessageFactory;
 import java.io.IOException;
 import java.util.Objects;
 
-import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.MAIN_MENU_SELECTOR;
-import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.REBOOT_MENU_SELECTOR;
+import static ru.blodge.bserver.commander.telegram.menu.MenuRouter.*;
 import static ru.blodge.bserver.commander.utils.Emoji.BACK_EMOJI;
 
 public class ShutdownMenuView implements MessageView {
@@ -30,7 +29,7 @@ public class ShutdownMenuView implements MessageView {
         if (context.args().length < 1) {
             displayConfirmation(context);
         } else if (Objects.equals(context.args()[0], "!")) {
-            rebootServer(context);
+            shutdownServer(context);
         }
 
     }
@@ -38,7 +37,7 @@ public class ShutdownMenuView implements MessageView {
     private void displayConfirmation(MessageContext context) {
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardBuilder()
-                .addButton("Да", REBOOT_MENU_SELECTOR + ".!")
+                .addButton("Да", SHUTDOWN_MENU_SELECTOR + ".!")
                 .addButton("Отмена", MAIN_MENU_SELECTOR)
                 .build();
 
@@ -60,7 +59,7 @@ public class ShutdownMenuView implements MessageView {
         }
     }
 
-    private void rebootServer(MessageContext context) {
+    private void shutdownServer(MessageContext context) {
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardBuilder()
                 .addButton(BACK_EMOJI + " Назад", MAIN_MENU_SELECTOR)

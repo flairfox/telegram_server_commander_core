@@ -55,7 +55,7 @@ public class RebootMenuView implements MessageView {
             CommanderBot.instance().execute(rebootConfirmation);
 
         } catch (TelegramApiException e) {
-            LOGGER.error("Error executing reboot menu message.", e);
+            LOGGER.error("Error executing reboot confirmation menu message.", e);
         }
     }
 
