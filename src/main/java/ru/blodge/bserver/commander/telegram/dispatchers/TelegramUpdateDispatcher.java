@@ -7,6 +7,8 @@ import ru.blodge.bserver.commander.telegram.handlers.AccessDeniedErrorHandler;
 import ru.blodge.bserver.commander.telegram.handlers.CallbackQueryHandler;
 import ru.blodge.bserver.commander.telegram.handlers.UpdateHandler;
 
+import java.util.Optional;
+
 import static ru.blodge.bserver.commander.configuration.TelegramBotConfig.ADMIN_USERS_IDS;
 
 public class TelegramUpdateDispatcher implements UpdateDispatcher {
@@ -20,19 +22,20 @@ public class TelegramUpdateDispatcher implements UpdateDispatcher {
 
     public void dispatch(Update update) {
         LOGGER.debug("Received update.");
+
+        // Сообщение пришло НЕ от администратора
+        Optional<Long> userId = getUserId(update);
+        if (userId.isEmpty()) {
+            return;
+        } else if (!ADMIN_USERS_IDS.contains(userId.get())) {
+            accessDeniedErrorHandler.handle(update);
+            return;
+        }
+
         if (update.hasMessage()) {
-
-            // Сообщение пришло НЕ от администратора
-            long userId = update.getMessage().getFrom().getId();
-            if (!ADMIN_USERS_IDS.contains(userId)) {
-                accessDeniedErrorHandler.handle(update);
-                return;
-            }
-
             // Сообщение является командой
             if (update.getMessage().getText().startsWith("/")) {
                 commandDispatcher.dispatch(update);
-                return;
             }
 
             // Сообщение содержит CallbackQuery
@@ -40,6 +43,16 @@ public class TelegramUpdateDispatcher implements UpdateDispatcher {
             callbackQueryHandler.handle(update);
         }
 
+    }
+
+    private Optional<Long> getUserId(Update update) {
+        if (update.hasMessage()) {
+            return Optional.of(update.getMessage().getFrom().getId());
+        } else if (update.hasCallbackQuery()) {
+            return Optional.of(update.getCallbackQuery().getFrom().getId());
+        } else {
+            return Optional.empty();
+        }
     }
 
 }

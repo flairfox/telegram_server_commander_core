@@ -10,19 +10,24 @@ import java.util.List;
 
 public interface SystemInfoApi {
 
-    @GET("/sysinfo")
+    String SYSTEM_MODULE_API_ADDRESS = "/api/v1/system/";
+
+    @GET(SYSTEM_MODULE_API_ADDRESS + "sysinfo")
     Call<SystemInfo> getSystemInfo();
 
-    @GET("/utilization")
+    @GET(SYSTEM_MODULE_API_ADDRESS + "utilization")
     Call<ResourceUtilizationInfo> getResourceUtilizationInfo();
 
-    @GET("/drives")
+    @GET(SYSTEM_MODULE_API_ADDRESS + "drives")
     Call<List<DriveInfo>> getDrivesInfo();
 
-    @GET("/reboot")
+    @GET(SYSTEM_MODULE_API_ADDRESS + "reboot")
     Call<Void> reboot();
 
-    @GET("/shutdown")
+    @GET(SYSTEM_MODULE_API_ADDRESS + "shutdown")
     Call<Void> shutdown();
+
+    @GET(SYSTEM_MODULE_API_ADDRESS + "ping")
+    Call<Void> ping();
 
 }
